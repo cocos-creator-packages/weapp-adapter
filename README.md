@@ -46,6 +46,15 @@ weapp-adapter of Wechat Tiny Game in ES6
 import './js/libs/weapp-adapter/index.js'
 ```
 
+ES6 转换编译为 ES5 方案：
+* 打开项目内 gulpfile.js 文件查看代码内容，可以根据使用需求自行修改导入文件夹和输出文件夹（test 文件夹需要在当前目录下新建）
+* 使用命令行在需要转换文件夹下执行：
+   - `npm install --save-dev babel-cli`
+   - `npm install babel-preset-env --save-dev`
+   - `npm install --save-dev babel-plugin-transform-export-extensions`
+   - `npm install --save-dev babel-plugin-transform-class-properties`
+* 安装好需要的编译模块，最后在命令行执行 `gulp` 自动调用 gulpfile.js 文件，在对应的文件夹下查看转换出的ES5文件
+* 详细官方文档链接：https://babeljs.cn/
 ----
 
 #### 注意:
