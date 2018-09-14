@@ -1,5 +1,3 @@
-
-
 var _frameRate = 60;
 cc.game.setFrameRate = function (frameRate) {
     _frameRate = frameRate;

@@ -100,12 +100,12 @@ WXDownloader.prototype.handle = function (item, callback) {
 };
 
 WXDownloader.prototype.cleanOldAssets = function () {
-    cleanAllFiles(wx.env.USER_DATA_PATH, _newAssets, (err) => {
+    cleanAllFiles(wx.env.USER_DATA_PATH, _newAssets, function (err) {
         if (err) {
             cc.warn(err);
         }
         else {
-            for (let i = 0; i < _newAssets.length; ++i) {
+            for (var i = 0; i < _newAssets.length; ++i) {
                 cc.log('reserve local file: ' + _newAssets[i]);
             }
             cc.log('Clean old Assets successfully!');
@@ -161,7 +161,7 @@ function cleanAllFiles(path, newAssets, finish) {
 
 WXDownloader.prototype.cleanAllAssets = function () {
     _newAssets = [];
-    cleanAllFiles(wx.env.USER_DATA_PATH, null, (err) => {
+    cleanAllFiles(wx.env.USER_DATA_PATH, null, function (err) {
         if (err) {
             cc.warn(err);
         }

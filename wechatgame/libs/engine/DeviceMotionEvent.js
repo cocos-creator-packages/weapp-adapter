@@ -1,29 +1,29 @@
-class DeviceMotionEvent {
-  constructor() {
+
+function DeviceMotionEvent() {
     this.type = 'devicemotion';
     this.accelerationIncludingGravity = null;
-  }
 }
 
-let registerFunc = _cc.inputManager._registerAccelerometerEvent.bind(_cc.inputManager);
+
+var registerFunc = _cc.inputManager._registerAccelerometerEvent.bind(_cc.inputManager);
 _cc.inputManager._registerAccelerometerEvent = function () {
   // register engine AccelerationEventListener to get acceleration data from wx
   registerFunc();
 
   wx.onAccelerometerChange && wx.onAccelerometerChange(function (res) {
-    let deviceMotionEvent = new DeviceMotionEvent();
-    let resCpy = {};
+    var deviceMotionEvent = new DeviceMotionEvent();
+    var resCpy = {};
     resCpy.x = res.x;
     resCpy.y = res.y;
     resCpy.z = res.z;
 
-    let gravityFactor = 10;
-    let systemInfo = wx.getSystemInfoSync();
-    let windowWidth = systemInfo.windowWidth;
-    let windowHeight = systemInfo.windowHeight;
+    var gravityFactor = 10;
+    var systemInfo = wx.getSystemInfoSync();
+    var windowWidth = systemInfo.windowWidth;
+    var windowHeight = systemInfo.windowHeight;
     if (windowHeight < windowWidth) {
       // landscape view
-      let tmp = resCpy.x;
+      var tmp = resCpy.x;
       resCpy.x = resCpy.y;
       resCpy.y = tmp;
       
@@ -41,9 +41,9 @@ _cc.inputManager._registerAccelerometerEvent = function () {
   
     document.dispatchEvent(deviceMotionEvent);
   });
-}
+};
 
-let unregisterFunc = _cc.inputManager._unregisterAccelerometerEvent.bind(_cc.inputManager);
+var unregisterFunc = _cc.inputManager._unregisterAccelerometerEvent.bind(_cc.inputManager);
 _cc.inputManager._unregisterAccelerometerEvent = function () {
   // unregister engine AccelerationEventListener
   unregisterFunc();
@@ -53,6 +53,6 @@ _cc.inputManager._unregisterAccelerometerEvent = function () {
       cc.error('unregister AccelerometerEvent failed !');
     },
     success: function () {}, 
-    complete: function () {},
+    compvare: function () {},
   });
-}
+};

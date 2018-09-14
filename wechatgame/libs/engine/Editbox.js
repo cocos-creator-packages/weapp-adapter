@@ -3,9 +3,9 @@
         return;
     }
     
-    let KeyboardReturnType = cc.EditBox.KeyboardReturnType;
-    let _p = cc.EditBox._EditBoxImpl.prototype;
-    let _currentEditBoxImpl = null;
+    var KeyboardReturnType = cc.EditBox.KeyboardReturnType;
+    var _p = cc.EditBox._EditBoxImpl.prototype;
+    var _currentEditBoxImpl = null;
 
     function getKeyboardReturnType (type) {
         switch (type) {
@@ -25,9 +25,9 @@
     }
 
     function updateLabelsVisibility(editBox) {
-        let placeholderLabel = editBox._placeholderLabel;
-        let textLabel = editBox._textLabel;
-        let displayText = editBox._impl._text;
+        var placeholderLabel = editBox._placeholderLabel;
+        var textLabel = editBox._textLabel;
+        var displayText = editBox._impl._text;
   
         placeholderLabel.node.active = displayText === '';
         textLabel.node.active = displayText !== '';
@@ -80,8 +80,8 @@
             _currentEditBoxImpl = this;
         }
 
-        let multiline = this._inputMode === cc.EditBox.InputMode.ANY;
-        let editBoxImpl = this;
+        var multiline = this._inputMode === cc.EditBox.InputMode.ANY;
+        var editBoxImpl = this;
         this._editing = true;
 
         function onKeyboardConfirmCallback (res) {

@@ -11,14 +11,14 @@ cc.loader.downloader.loadSubpackage = function (name, completeCallback) {
 };
 
 function downloadScript (item, callback, isAsync) {
-    let url = '../../' + item.url;
+    var url = '../../' + item.url;
     require(url);
     callback(null, item.url);
 }
 
 function loadFont (item) {
-    let url = item.url;
-    let fontFamily = wx.loadFont(url);
+    var url = item.url;
+    var fontFamily = wx.loadFont(url);
     return fontFamily || 'Arial';
 }
 
