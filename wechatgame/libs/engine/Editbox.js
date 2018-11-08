@@ -25,12 +25,14 @@
     }
 
     function updateLabelsVisibility(editBox) {
-        var placeholderLabel = editBox._placeholderLabel;
-        var textLabel = editBox._textLabel;
-        var displayText = editBox._impl._text;
+        let displayText = editBox._impl._text;
   
-        placeholderLabel.node.active = displayText === '';
-        textLabel.node.active = displayText !== '';
+        if (editBox.textLabel) {
+            editBox.textLabel.node.active = displayText !== '';
+        }
+        if (editBox.placeholderLabel) {
+            editBox.placeholderLabel.node.active = displayText === '';
+        }
     }
 
     cc.EditBox.prototype.editBoxEditingDidBegan = function () {
