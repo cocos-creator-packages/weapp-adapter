@@ -46,6 +46,10 @@ wx.onMessage(function (data) {
 cc.Canvas.prototype.update = function () {
     if (this._width !== cc.game.canvas.width || this._height !== cc.game.canvas.height) {
         this.applySettings();
+        // resize canvas
+        this.alignWithScreen();
+        // resize ui widgets
+        cc._widgetManager.onResized();
     }
 };
 
