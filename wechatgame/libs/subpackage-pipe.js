@@ -53,12 +53,12 @@ SubPackPipe.prototype.handle = function (item) {
 };
 
 SubPackPipe.prototype.transformURL = function (url) {
-
     var uuid = getUuidFromURL(url);
     if (uuid) {
         var subpackage = _uuidToSubPack[uuid];
         if (subpackage) {
-            return url.replace('res/', subpackage);
+            // only replace url of native assets
+            return url.replace('res/raw-assets/', subpackage + 'raw-assets/');
         }
     }
     return url;
