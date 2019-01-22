@@ -26,11 +26,13 @@
 var ID = 'WXDownloader';
 
 var non_text_format = [
-    'js','png','jpg','bmp','jpeg','gif','ico','tiff','webp','image','pvr','etc','mp3','ogg','wav','m4a','font','eot','ttf','woff','svg','ttc'
+    'js','png','jpg','bmp','jpeg','gif','ico','tiff','webp','image','mp3','ogg','wav','m4a','font','eot','ttf','woff','svg','ttc'
 ];
 
 var binary_format = [
-    'bin'
+    'bin',
+    'pvr',
+    'etc'
 ];
 
 const REGEX = /^\w+:\/\/.*/;

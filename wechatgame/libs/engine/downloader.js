@@ -23,16 +23,10 @@ function loadFont (item) {
 }
 
 cc.loader.downloader.addHandlers({
-    js : downloadScript,
-
-    pvr: cc.loader.downloader.extMap.png,
-    etc: cc.loader.downloader.extMap.png,
+    js : downloadScript
 });
 
 cc.loader.loader.addHandlers({
-    pvr: cc.loader.loader.extMap.png,
-    etc: cc.loader.loader.extMap.png,
-
     // Font
     font: loadFont,
     eot: loadFont,
