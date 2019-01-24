@@ -1,6 +1,6 @@
 var settings = window._CCSettings;
 
-cc.director.once(cc.Director.EVENT_BEFORE_SCENE_LOADING, function () {
+cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
     cc.Pipeline.Downloader.PackDownloader._doPreload("WECHAT_SUBDOMAIN", settings.WECHAT_SUBDOMAIN_DATA);
 });
 
