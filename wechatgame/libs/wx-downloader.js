@@ -121,7 +121,7 @@ WXDownloader.prototype.cleanOldAssets = function () {
 
 function cleanAllFiles(path, newAssets, finish) {
     if (!fs) {
-        finish && finish('wx.getFileSystemManager is undefined');
+        finish('wx.getFileSystemManager is undefined');
         return;
     }
 
@@ -159,13 +159,13 @@ function cleanAllFiles(path, newAssets, finish) {
                     }
                 }
                 else {
-                    finish && finish();
+                    finish();
                 }
 
             })(0);
         },
         fail: function (res) {
-            finish && finish();
+            finish();
         },
     });
 }
@@ -201,7 +201,7 @@ function nextPipe(item, callback) {
 
 function readText (item, callback) {
     if (!fs) {
-        callback && callback({
+        callback({
             status: 0,
             errorMessage: 'wx.getFileSystemManager is undefined'
         });
@@ -236,10 +236,10 @@ function readText (item, callback) {
             
             if (res.data) {
                 item.states[cc.loader.downloader.id] = cc.Pipeline.ItemState.COMPLETE;
-                callback && callback(null, res.data);
+                callback(null, res.data);
             }
             else {
-                callback && callback({
+                callback({
                     status: 0,
                     errorMessage: "Empty file: " + url
                 });
@@ -253,7 +253,7 @@ function readText (item, callback) {
                     cc.log('Read file failed, removed local file ' + url + ' successfully!');
                 }
             });
-            callback && callback({
+            callback({
                 status: 0,
                 errorMessage: res && res.errMsg ? res.errMsg : "Read text file failed: " + url
             });
@@ -263,7 +263,7 @@ function readText (item, callback) {
 
 function readFromLocal (item, callback) {
     if (!fs) {
-        callback && callback({
+        callback({
             status: 0,
             errorMessage: 'wx.getFileSystemManager is undefined'
         });
@@ -291,7 +291,7 @@ function readFromLocal (item, callback) {
         fail: function (res) {
             // No remote server indicated, then continue to downloader
             if (!wxDownloader.REMOTE_SERVER_ROOT) {
-                callback && callback(null, null);
+                callback(null, null);
                 return;
             }
 
@@ -302,14 +302,14 @@ function readFromLocal (item, callback) {
 
 function ensureDirFor (path, callback) {
     if (!fs) {
-        callback && callback('wx.getFileSystemManager is undefined');
+        callback('wx.getFileSystemManager is undefined');
         return;
     }
 
     // cc.log('mkdir:' + path);
     var ensureDir = cc.path.dirname(path);
     if (ensureDir === "wxfile://usr" || ensureDir === "http://usr") {
-        callback && callback();
+        callback();
         return;
     }
     fs.access({
@@ -332,7 +332,7 @@ function downloadRemoteFile (item, callback) {
 
     // filter protocol url (E.g: https:// or http:// or ftp://)
     if (REGEX.test(relatUrl)) {
-        callback && callback(null, null);
+        callback(null, null);
         return;
     }
 
@@ -378,7 +378,7 @@ function downloadRemoteFile (item, callback) {
             }
             else {
                 cc.warn("Download file failed: " + remoteUrl);
-                callback && callback({
+                callback({
                     status: 0,
                     errorMessage: res && res.errMsg ? res.errMsg : "Download file failed: " + remoteUrl
                 });
@@ -386,7 +386,7 @@ function downloadRemoteFile (item, callback) {
         },
         fail: function (res) {
             // Continue to try download with downloader, most probably will also fail
-            callback && callback({
+            callback({
                 status: 0,
                 errorMessage: res && res.errMsg ? res.errMsg : "Download file failed: " + remoteUrl
             }, null);
