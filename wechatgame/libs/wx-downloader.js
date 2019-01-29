@@ -32,7 +32,7 @@ var non_text_format = [
 var binary_format = [
     'bin',
     'pvr',
-    'etc'
+    'pkm'
 ];
 
 const REGEX = /^\w+:\/\/.*/;
