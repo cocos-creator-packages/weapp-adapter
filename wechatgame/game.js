@@ -4,7 +4,6 @@ window.DOMParser = Parser.DOMParser;
 require('libs/wx-downloader.js');
 require('src/settings');
 var settings = window._CCSettings;
-require('src/subdomain.json.js');
 var SubPackPipe = require('./libs/subpackage-pipe');
 require('main');
 require(settings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js');
@@ -21,6 +20,11 @@ if (settings.subpackages) {
 }
 
 if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+    var _WECHAT_SUBDOMAIN_DATA = require('src/subdomain.json.js');
+    cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
+        cc.Pipeline.Downloader.PackDownloader._doPreload("WECHAT_SUBDOMAIN", _WECHAT_SUBDOMAIN_DATA);
+    });
+
     require('./libs/sub-context-adapter');
 }
 else {

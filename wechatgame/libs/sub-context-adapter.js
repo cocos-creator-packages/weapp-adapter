@@ -1,9 +1,3 @@
-var settings = window._CCSettings;
-
-cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
-    cc.Pipeline.Downloader.PackDownloader._doPreload("WECHAT_SUBDOMAIN", window._WECHAT_SUBDOMAIN_DATA);
-});
-
 var viewportInMain = {
     x: 0,
     y: 0,
