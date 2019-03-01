@@ -5,7 +5,7 @@
 		"urlCheck": true,
 		"es6": false,
 		"postcss": true,
-		"minified": true,
+		"minified": false,
 		"newFeature": false
 	},
 	"compileType": "game",
