@@ -35,6 +35,8 @@ var binary_format = [
 
 const REGEX = /^\w+:\/\/.*/;
 
+var downloadTempFileMap = {};
+
 // used to control cache
 var cacheQueue = {};
 var checkNextPeriod = false;
@@ -349,6 +351,21 @@ function cacheAsset (url, localPath) {
                         filePath: localPath,
                         success: function (res) {
                             cc.log('cache success ' + localPath);
+
+                            let obj = downloadTempFileMap[url];
+                            if (obj) {
+                                let item = obj.item;
+                                let callback = obj.callback;
+                                // Get local path before entering next load pipe.
+                                item.url = localPath;
+                                if (item.type && non_text_format.indexOf(item.type) !== -1) {
+                                    nextPipe(item, callback);
+                                }
+                                else {
+                                    readText(item, callback);
+                                }
+                                delete downloadTempFileMap[url];
+                            }
                         }
                     });
                 });
@@ -382,16 +399,11 @@ function downloadRemoteFile (item, callback) {
         success: function (res) {
             if (res.statusCode === 200 && res.tempFilePath) {
                 // http reading is not cached
-                var temp = res.tempFilePath;
-                item.url = temp;
-                if (item.type && non_text_format.indexOf(item.type) !== -1) {
-                    nextPipe(item, callback);
-                }
-                else {
-                    readText(item, callback);
-                }
-                cacheAsset(temp, wx.env.USER_DATA_PATH + '/' + relatUrl);
-                
+                var tempFilePath = res.tempFilePath;
+                downloadTempFileMap[tempFilePath] = { item: item, callback: callback };
+
+                // Enter next load pipe after file has been cached. Because temp file path is unreliable.
+                cacheAsset(tempFilePath, wx.env.USER_DATA_PATH + '/' + relatUrl);
             }
             else {
                 cc.warn("Download file failed: " + remoteUrl);
