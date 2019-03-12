@@ -3,9 +3,10 @@
         return;
     }
     
-    var KeyboardReturnType = cc.EditBox.KeyboardReturnType;
-    var _p = cc.EditBox._EditBoxImpl.prototype;
-    var _currentEditBoxImpl = null;
+    const EditBox = cc.EditBox;
+    const js = cc.js;
+    const KeyboardReturnType = EditBox.KeyboardReturnType;
+    let _currentEditBoxImpl = null;
 
     function getKeyboardReturnType (type) {
         switch (type) {
@@ -24,117 +25,151 @@
         return 'done';
     }
 
-    function updateLabelsVisibility(editBox) {
-        var placeholderLabel = editBox._placeholderLabel;
-        var textLabel = editBox._textLabel;
-        var displayText = editBox._impl._text;
-  
-        placeholderLabel.node.active = displayText === '';
-        textLabel.node.active = displayText !== '';
+    function WXEditBoxImpl () {
+        this._delegate = null;
+        this._editing = false;
+
+        this._eventListeners = {
+            onKeyboardInput: null,
+            onKeyboardConfirm: null,
+            onKeyboardComplete: null,
+        };
     }
 
-    cc.EditBox.prototype.editBoxEditingDidBegan = function () {
-        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit('editing-did-began', this);
-    };
+    js.extend(WXEditBoxImpl, EditBox._ImplClass);
+    EditBox._ImplClass = WXEditBoxImpl;
 
-    cc.EditBox.prototype.editBoxEditingDidEnded = function () {
-        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit('editing-did-ended', this);
-    };
-
-    cc.EditBox.prototype._updateStayOnTop = function () {
-        // wx not support
-    };
-
-    _p.setFocus = function () {
-        this._beginEditing();
-    };
-
-    _p.isFocused = function () {
-        return this._editing;
-    };
-
-    _p.setInputMode = function (inputMode) {
-        this._inputMode = inputMode;
-    };
-
-    _p._beginEditing = function () {
-        this.createInput();
-    };
-
-    _p._endEditing = function () {
-        this._delegate && this._delegate.editBoxEditingDidEnded();
-        this._editing = false;
-    };
-
-    _p.createInput = function () {
-        // Unregister keyboard event listener in old editBoxImpl if keyboard haven't hidden.
-        if (_currentEditBoxImpl !== this) {
-            if (_currentEditBoxImpl) {
-                _currentEditBoxImpl._endEditing();
-                wx.offKeyboardConfirm(_currentEditBoxImpl.onKeyboardConfirmCallback);
-                wx.offKeyboardInput(_currentEditBoxImpl.onKeyboardInputCallback);
-                wx.offKeyboardComplete(_currentEditBoxImpl.onKeyboardCompleteCallback);
+    Object.assign(WXEditBoxImpl.prototype, {
+        init (delegate) {
+            if (!delegate) {
+                cc.error('EditBox init failed');
+                return;
             }
+            this._delegate = delegate;
+        },
+    
+        setFocus (value) {
+            if (value) {
+                this.beginEditing();
+            }
+            else {
+                this.endEditing();
+            }
+        },
+    
+        isFocused () {
+            return this._editing;
+        },
+    
+        beginEditing () {
+            // In case multiply register events
+            if (_currentEditBoxImpl === this) {
+                return;
+            }
+            let delegate = this._delegate;
+            // handle the old keyboard
+            if (_currentEditBoxImpl) {
+                let currentImplCbs = _currentEditBoxImpl._eventListeners;
+                currentImplCbs.onKeyboardComplete();
+
+                // https://developers.weixin.qq.com/minigame/dev/api/wx.updateKeyboard.html
+                wx.updateKeyboard && wx.updateKeyboard({
+                    value: delegate._string,
+                });
+            }
+
+            this._registerKeyboardEvent();
+            this._showKeyboard();
+
+            this._editing = true;
             _currentEditBoxImpl = this;
-        }
+            delegate.editBoxEditingDidBegan();
+        },
+        
+        endEditing () {
+            this._hideKeyboard();
+            let cbs = this._eventListeners;
+            cbs.onKeyboardComplete && cbs.onKeyboardComplete();
+        },
 
-        var multiline = this._inputMode === cc.EditBox.InputMode.ANY;
-        var editBoxImpl = this;
-        this._editing = true;
+        _registerKeyboardEvent () {
+            let self = this;
+            let delegate = this._delegate;
+            let cbs = this._eventListeners;
 
-        function onKeyboardConfirmCallback (res) {
-            editBoxImpl._text = res.value;
-            editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingReturn && editBoxImpl._delegate.editBoxEditingReturn();
-            wx.hideKeyboard({
-                success: function (res) {
-                    
+            cbs.onKeyboardInput = function (res) {        
+                if (res.value.length > delegate.maxLength) {
+                    res.value = res.value.slice(0, delegate.maxLength);
+                }
+                if (delegate._string !== res.value) {
+                    delegate.editBoxTextChanged(res.value);
+                }
+            }
+
+            cbs.onKeyboardConfirm = function (res) {
+                delegate.editBoxEditingReturn();
+                let cbs = self._eventListeners;
+                cbs.onKeyboardComplete && cbs.onKeyboardComplete();
+            }
+
+            cbs.onKeyboardComplete = function () {
+                self._editing = false;
+                _currentEditBoxImpl = null;
+                self._unregisterKeyboardEvent();
+                delegate.editBoxEditingDidEnded();
+            }
+
+            wx.onKeyboardInput(cbs.onKeyboardInput);
+            wx.onKeyboardConfirm(cbs.onKeyboardConfirm);
+            wx.onKeyboardComplete(cbs.onKeyboardComplete);
+        },
+
+        _unregisterKeyboardEvent () {
+            let cbs = this._eventListeners;
+
+            if (cbs.onKeyboardInput) {
+                wx.offKeyboardInput(cbs.onKeyboardInput);
+                cbs.onKeyboardInput = null;
+            }
+            if (cbs.onKeyboardConfirm) {
+                wx.offKeyboardConfirm(cbs.onKeyboardConfirm);
+                cbs.onKeyboardConfirm = null;
+            }
+            if (cbs.onKeyboardComplete) {
+                wx.offKeyboardComplete(cbs.onKeyboardComplete);
+                cbs.onKeyboardComplete = null;
+            }
+        },
+
+        _showKeyboard () {
+            let delegate = this._delegate;
+            let multiline = (delegate.inputMode === EditBox.InputMode.ANY);
+
+            wx.showKeyboard({
+                defaultValue: delegate._string,
+                maxLength: delegate.maxLength,
+                multiple: multiline,
+                confirmHold: false,
+                confirmType: getKeyboardReturnType(delegate.returnType),
+                success (res) {
+
                 },
-                fail: function (res) {
+                fail (res) {
                     cc.warn(res.errMsg);
                 }
             });
-        }
+        },
 
-        function onKeyboardInputCallback (res) {        
-            if (res.value.length > editBoxImpl._maxLength) {
-                res.value = res.value.slice(0, editBoxImpl._maxLength);
-            }
-            if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged) {
-                if (editBoxImpl._text !== res.value) {
-                    editBoxImpl._text = res.value;
-                    editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-                    updateLabelsVisibility(editBoxImpl._delegate);
-                }
-            }
-        }
-
-        function onKeyboardCompleteCallback () {
-            editBoxImpl._endEditing();
-            wx.offKeyboardConfirm(onKeyboardConfirmCallback);
-            wx.offKeyboardInput(onKeyboardInputCallback);
-            wx.offKeyboardComplete(onKeyboardCompleteCallback);
-            _currentEditBoxImpl = null;
-        }
-        
-        wx.showKeyboard({
-            defaultValue: editBoxImpl._text,
-            maxLength: editBoxImpl._maxLength,
-            multiple: multiline,
-            confirmHold: false,  // hide keyboard mannually by wx.onKeyboardConfirm
-            confirmType: getKeyboardReturnType(editBoxImpl._returnType),
-            success: function (res) {
-                editBoxImpl._delegate && editBoxImpl._delegate.editBoxEditingDidBegan && editBoxImpl._delegate.editBoxEditingDidBegan();
-            },
-            fail: function (res) {
-                cc.warn(res.errMsg);
-                editBoxImpl._endEditing();
-            }
-        });
-        wx.onKeyboardConfirm(onKeyboardConfirmCallback);
-        wx.onKeyboardInput(onKeyboardInputCallback);
-        wx.onKeyboardComplete(onKeyboardCompleteCallback);
-    };
+        _hideKeyboard () {
+            wx.hideKeyboard({
+                success (res) {
+                    
+                },
+                fail (res) {
+                    cc.warn(res.errMsg);
+                },
+            });
+        },
+    });
 })();
 
