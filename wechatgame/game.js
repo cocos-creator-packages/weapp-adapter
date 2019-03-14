@@ -28,5 +28,5 @@ else {
     // Release Image objects after uploaded gl texture
     cc.macro.CLEANUP_IMAGE_CACHE = true;
 }
-
+wxDownloader.init();
 window.boot();
