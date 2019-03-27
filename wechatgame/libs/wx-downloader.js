@@ -122,6 +122,11 @@ WXDownloader.prototype.handle = function (item, callback) {
     }
 };
 
+WXDownloader.prototype.cleanOldAssets = function () {
+    cc.warn('wxDownloader.cleanOldAssets has been deprecated, please use wxDownloader.cleanOldCaches instead!');
+    return this.cleanOldCaches();
+};
+
 WXDownloader.prototype.cleanOldCaches = function () {
     this.cleanAllCaches(_newAssets, function (err) {
         if (err) {
@@ -163,6 +168,13 @@ WXDownloader.prototype.cleanCache = function (filePath) {
             if (!err) self.outOfStorage = false;
         });
     }
+};
+
+WXDownloader.prototype.cleanAllAssets = function () {
+    cc.warn('wxDownloader.cleanAllAssets has been deprecated, please use cleanAllCaches instead!');
+    this.cleanAllCaches(null, function (err) {
+        if (err) cc.error(err.message);
+    });
 };
 
 WXDownloader.prototype.cleanAllCaches = function (exclude, callback) {
