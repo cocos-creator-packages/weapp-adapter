@@ -5,7 +5,7 @@ require('libs/wx-downloader.js');
 require('src/settings');
 var settings = window._CCSettings;
 require('main');
-require(settings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js');
+require('cocos/' + (settings.debug ? 'cocos2d-js.js' : 'cocos2d-js-min.js'));
 require('./libs/engine/index.js');
 
 // Adjust devicePixelRatio
