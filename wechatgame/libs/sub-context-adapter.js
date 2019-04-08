@@ -32,6 +32,14 @@ wx.onMessage(function (data) {
             viewportInMain.width = data.width;
             viewportInMain.height = data.height;
         }
+        else if (data.event === 'mainLoop') {
+            if (data.value) {
+                cc.game.resume();
+            }
+            else {
+                cc.game.pause();
+            }
+        }
     }
 });
 
