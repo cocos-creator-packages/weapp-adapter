@@ -40,6 +40,9 @@ wx.onMessage(function (data) {
                 cc.game.pause();
             }
         }
+        else if (data.event === 'frameRate') {
+            cc.game.setFrameRate(data.value);
+        }
     }
 });
 
