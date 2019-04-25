@@ -57,3 +57,44 @@ cc.game._runMainLoop = function () {
 };
 // wechat game platform not support this api
 cc.game.end = function () {};
+
+//  Small game in the screen log
+var offset = 100;
+var once = true;
+wx.onError(function (info) {
+    if (!once) {
+        return;
+    }
+    once = false;
+    var env = wx.getSystemInfoSync();
+    if (!env) {
+        return;
+    }
+    var root = cc.Canvas.instance.node;
+    if (!root) {
+        return;
+    }
+    var node = new cc.Node();
+    node.color = cc.Color.BLACK;
+    node.parent = root;
+
+    var label = node.addComponent(cc.Label);
+    node.height = root.height - offset;
+    node.width = root.width - offset;
+    label.horizontalAlign = cc.Label.HorizontalAlign.LEFT;
+    label.verticalAlign = cc.Label.VerticalAlign.TOP;
+    label.fontSize = 24;
+    label.overflow = cc.Label.Overflow.SHRINK;
+
+    label.string = '请截屏发送以下信息反馈给游戏开发者（Please send this screen shot to the game developer）\n';
+    label.string += 'Device: ' + env.brand + ' ' + env.model + '\n' + 'System: ' + env.system + '\n' + 'Platform: WeChat ' + env.version + '\n' + 'Engine: Cocos Creator v' + window.CocosEngine + '\n' + 'Error:\n' + info.message;
+
+    cc.director.pause();
+
+    node.once('touchend', function () {
+        node.destroy();
+        setTimeout(function () {
+            cc.director.resume();
+        }, 1000)
+    })
+});
