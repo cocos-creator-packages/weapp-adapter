@@ -131,6 +131,8 @@ export default class XMLHttpRequest extends EventTarget {
           // TODO 规范错误
           if (errMsg.indexOf('abort') !== -1) {
             _triggerEvent.call(this, 'abort')
+          } else if (errMsg.indexOf('timeout') !== -1) {
+            _triggerEvent.call(this, 'timeout')
           } else {
             _triggerEvent.call(this, 'error', errMsg)
           }
