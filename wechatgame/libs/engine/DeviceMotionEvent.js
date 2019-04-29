@@ -30,15 +30,13 @@ _cc.inputManager._registerAccelerometerEvent = function () {
                 resCpy.x = resCpy.y;
                 resCpy.y = tmp;
         
-                resCpy.x *= gravityFactor;
-                resCpy.y *= -gravityFactor;
-        
-                // TODO adjust x y axis when the view flips upside down
+                resCpy.x *= -gravityFactor;
+                resCpy.y *= gravityFactor;
             }
             else {
                 // portrait view
-                resCpy.x *= -gravityFactor;
-                resCpy.y *= -gravityFactor;
+                resCpy.x *= gravityFactor;
+                resCpy.y *= gravityFactor;
             }
             deviceMotionEvent.accelerationIncludingGravity = resCpy;
         
