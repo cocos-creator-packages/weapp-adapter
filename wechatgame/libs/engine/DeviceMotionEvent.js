@@ -1,70 +1,81 @@
 
-function DeviceMotionEvent() {
-    this.type = 'devicemotion';
-    this.accelerationIncludingGravity = null;
-}
+const inputManager = _cc.inputManager;
+let isInit = false;
 
-var isInit = false;
-var registerFunc = _cc.inputManager._registerAccelerometerEvent.bind(_cc.inputManager);
+Object.assign(inputManager, {
+    setAccelerometerEnabled (isEnable) {
+        let scheduler = cc.director.getScheduler();
+        scheduler.enableForTarget(this);
+        if (isEnable) {
+            this._registerAccelerometerEvent();
+            scheduler.scheduleUpdate(this);
+        }
+        else {
+            this._unregisterAccelerometerEvent();
+            scheduler.unscheduleUpdate(this);
+        }
+    },
 
-_cc.inputManager._registerAccelerometerEvent = function () {
-    // register engine AccelerationEventListener to get acceleration data from wx
-    registerFunc();
+    // No need to adapt
+    // setAccelerometerInterval (interval) {  },
 
-    if (!isInit) {
-        isInit = true;
-        wx.onAccelerometerChange && wx.onAccelerometerChange(function (res) {
-            var deviceMotionEvent = new DeviceMotionEvent();
-            var resCpy = {};
-            resCpy.x = res.x;
-            resCpy.y = res.y;
-            resCpy.z = res.z;
-        
-            var gravityFactor = 10;
-            var systemInfo = wx.getSystemInfoSync();
-            var windowWidth = systemInfo.windowWidth;
-            var windowHeight = systemInfo.windowHeight;
-            if (windowHeight < windowWidth) {
-                // landscape view
-                var tmp = resCpy.x;
-                resCpy.x = resCpy.y;
-                resCpy.y = tmp;
-        
-                resCpy.x *= gravityFactor;
-                resCpy.y *= -gravityFactor;
-        
-                // TODO adjust x y axis when the view flips upside down
-            }
-            else {
-                // portrait view
-                resCpy.x *= -gravityFactor;
-                resCpy.y *= -gravityFactor;
-            }
-            deviceMotionEvent.accelerationIncludingGravity = resCpy;
-        
-            document.dispatchEvent(deviceMotionEvent);
-        });
-    } else {
-        wx.startAccelerometer && wx.startAccelerometer({
+    _registerAccelerometerEvent () {
+        this._accelCurTime = 0;   
+        if (!isInit) {
+            isInit = true;
+            let self = this;
+            this._acceleration = new cc.Acceleration();
+
+            wx.onAccelerometerChange && wx.onAccelerometerChange(function (res) {
+                let resCpy = {};
+                resCpy.x = res.x;
+                resCpy.y = res.y;
+                resCpy.z = res.z;
+            
+                let systemInfo = wx.getSystemInfoSync();
+                let windowWidth = systemInfo.windowWidth;
+                let windowHeight = systemInfo.windowHeight;
+                if (windowHeight < windowWidth) {
+                    // Landscape orientation
+
+                    // For left landscape
+                    // resCpy.x = resCpy.y;
+                    // resCpy.y = -resCpy.x;
+
+                    // For right landscape
+                    // resCpy.x = -resCpy.y;
+                    // resCpy.y = resCpy.x;
+
+                    // We suggest to use right landscape by default
+                    let tmp = resCpy.x;
+                    resCpy.x = -resCpy.y;
+                    resCpy.y = tmp;
+                }
+                
+                self._acceleration.x = resCpy.x;
+                self._acceleration.y = resCpy.y;
+                self._acceleration.z = resCpy.z;
+            });
+        }
+        else {
+            wx.startAccelerometer && wx.startAccelerometer({
+                fail: function (err) {
+                    cc.error('register Accelerometer failed ! err: ' + err);
+                },
+                success: function () {},
+                complete: function () {},
+            });
+        }
+    },
+
+    _unregisterAccelerometerEvent () {
+        this._accelCurTime = 0;  
+        wx.stopAccelerometer && wx.stopAccelerometer({
             fail: function (err) {
-                cc.error('register Accelerometer failed ! err: ' + err);
+                cc.error('unregister Accelerometer failed ! err: ' + err);
             },
             success: function () {},
             complete: function () {},
         });
-    }
-};
-
-var unregisterFunc = _cc.inputManager._unregisterAccelerometerEvent.bind(_cc.inputManager);
-_cc.inputManager._unregisterAccelerometerEvent = function () {
-    // unregister engine AccelerationEventListener
-    unregisterFunc();
-
-    wx.stopAccelerometer && wx.stopAccelerometer({
-        fail: function (err) {
-            cc.error('unregister Accelerometer failed ! err: ' + err);
-        },
-        success: function () {},
-        complete: function () {},
-    });
-};
+    },
+});
