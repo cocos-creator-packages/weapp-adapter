@@ -104,6 +104,10 @@ export default class Audio extends HTMLAudioElement {
     _innerAudioContextMap[this._$sn].pause()
   }
 
+  stop() {
+      _innerAudioContextMap[this._$sn].stop()
+  }
+
   destroy() {
     _innerAudioContextMap[this._$sn].destroy()
   }
