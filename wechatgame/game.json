@@ -9,7 +9,7 @@
   },
   "plugins": {
     "cocos": {
-      "provider": "wxff9a2d297b1b5daa",
+      "provider": "wx52ac1b08c504a785",
       "version": "",
       "path": "cocos/cocos2d-js-min.js"
     }
