@@ -27,10 +27,8 @@ Object.assign(inputManager, {
             this._acceleration = new cc.Acceleration();
 
             wx.onAccelerometerChange && wx.onAccelerometerChange(function (res) {
-                let resCpy = {};
-                resCpy.x = res.x;
-                resCpy.y = res.y;
-                resCpy.z = res.z;
+                let x = res.x;
+                let y = res.y;
             
                 let systemInfo = wx.getSystemInfoSync();
                 let windowWidth = systemInfo.windowWidth;
@@ -39,22 +37,22 @@ Object.assign(inputManager, {
                     // Landscape orientation
 
                     // For left landscape
-                    // resCpy.x = resCpy.y;
-                    // resCpy.y = -resCpy.x;
+                    // x = y;
+                    // y = -x;
 
                     // For right landscape
-                    // resCpy.x = -resCpy.y;
-                    // resCpy.y = resCpy.x;
+                    // x = -y;
+                    // y = x;
 
                     // We suggest to use right landscape by default
-                    let tmp = resCpy.x;
-                    resCpy.x = -resCpy.y;
-                    resCpy.y = tmp;
+                    let tmp = x;
+                    x = -y;
+                    y = tmp;
                 }
                 
-                self._acceleration.x = resCpy.x;
-                self._acceleration.y = resCpy.y;
-                self._acceleration.z = resCpy.z;
+                self._acceleration.x = x;
+                self._acceleration.y = y;
+                self._acceleration.z = res.z;
             });
         }
         else {
