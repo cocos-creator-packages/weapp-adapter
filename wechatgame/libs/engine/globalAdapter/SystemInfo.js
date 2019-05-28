@@ -1,30 +1,25 @@
-const macro = require('./macro');
-const systemInfo = {};
-
-// IIFE: initSystemInfo
-(function () {
+function adaptSys (sys) {
     var env = wx.getSystemInfoSync();
-    systemInfo.isNative = false;
-    systemInfo.isBrowser = false;
-    systemInfo.isMobile = true;
-    systemInfo.platform = macro.WECHAT_GAME;
-    systemInfo.language = env.language.substr(0, 2);
-    systemInfo.languageCode = env.language.toLowerCase();
+    sys.isNative = false;
+    sys.isBrowser = false;
+    sys.isMobile = true;
+    sys.language = env.language.substr(0, 2);
+    sys.languageCode = env.language.toLowerCase();
     var system = env.system.toLowerCase();
 
     if (env.platform === "android") {
-        systemInfo.os = macro.OS_ANDROID;
+        sys.os = sys.OS_ANDROID;
     }
     else if (env.platform === "ios") {
-        systemInfo.os = macro.OS_IOS;
+        sys.os = sys.OS_IOS;
     }
     else if (env.platform === 'devtools') {
-        systemInfo.isMobile = false;
+        sys.isMobile = false;
         if (system.indexOf('android') > -1) {
-            systemInfo.os = macro.OS_ANDROID;
+            sys.os = sys.OS_ANDROID;
         }
         else if (system.indexOf('ios') > -1) {
-            systemInfo.os = macro.OS_IOS;
+            sys.os = sys.OS_IOS;
         }
     }
 
@@ -34,27 +29,29 @@ const systemInfo = {};
     }
 
     var version = /[\d\.]+/.exec(system);
-    systemInfo.osVersion = version ? version[0] : system;
-    systemInfo.osMainVersion = parseInt(systemInfo.osVersion);
+    sys.osVersion = version ? version[0] : system;
+    sys.osMainVersion = parseInt(sys.osVersion);
     
     // wechagame subdomain
     if (!wx.getOpenDataContext) {
-        systemInfo.browserType = macro.BROWSER_TYPE_WECHAT_GAME_SUB;
+        sys.platform = sys.WECHAT_GAME_SUB;
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
     }
     else {
-        systemInfo.browserType = macro.BROWSER_TYPE_WECHAT_GAME;
+        sys.platform = sys.WECHAT_GAME;
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
     }
-    systemInfo.browserVersion = env.version;
+    sys.browserVersion = env.version;
 
     var w = env.windowWidth;
     var h = env.windowHeight;
     var ratio = env.pixelRatio || 1;
-    systemInfo.windowPixelResolution = {
+    sys.windowPixelResolution = {
         width: ratio * w,
         height: ratio * h
     };
 
-    systemInfo.localStorage = window.localStorage;
+    sys.localStorage = window.localStorage;
 
     var _supportWebGL = false;
     var _supportWebp = false;
@@ -65,17 +62,17 @@ const systemInfo = {};
     }
     catch (err) { }
 
-    systemInfo.capabilities = {
+    sys.capabilities = {
         "canvas": true,
         "opengl": !!_supportWebGL,
         "webp": _supportWebp
     };
-    systemInfo.audioSupport = {
+    sys.__audioSupport = {
         ONLY_ONE: false,
         WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
         format: ['.mp3']
     };
-})();
+}
 
-module.exports = systemInfo;
+module.exports = adaptSys;

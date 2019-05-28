@@ -74,10 +74,6 @@ Object.assign(game, {
             this._renderContext = renderer.device._ctx;
         }
 
-        this.canvas.oncontextmenu = function () {
-            if (!cc._isContextMenuEnable) return false;
-        };
-
         this._rendererInitialized = true;
     },
 
@@ -138,21 +134,9 @@ Object.assign(game, {
             win.addEventListener("focus", onShown);
         }
 
-        if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
-            win.onfocus = onShown;
-        }
-
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
             wx.onHide && wx.onHide(onHidden);
-        }
-
-        if ("onpageshow" in window && "onpagehide" in window) {
-            win.addEventListener("pagehide", onHidden);
-            win.addEventListener("pageshow", onShown);
-            // Taobao UIWebKit
-            document.addEventListener("pagehide", onHidden);
-            document.addEventListener("pageshow", onShown);
         }
 
         this.on(game.EVENT_HIDE, function () {
