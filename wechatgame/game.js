@@ -1,4 +1,5 @@
 require('libs/weapp-adapter/index');
+require('./libs/engine/preAdaptEngine/index');
 var Parser = require('libs/xmldom/dom-parser');
 window.DOMParser = Parser.DOMParser;
 require('libs/wx-downloader.js');
