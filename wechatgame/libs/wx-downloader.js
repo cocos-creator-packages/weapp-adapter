@@ -26,7 +26,7 @@ var ID = 'WXDownloader';
 const wxFsUtils = require('./wx-fs-utils');
 
 const REGEX = /^\w+:\/\/.*/;
-const isSubContext = !wx.getOpenDataContext;
+const isSubContext = (cc.sys.platform === cc.sys.WECHAT_GAME_SUB);
 
 var packageFiles = null;
 var cachedFiles = null;

@@ -1,5 +1,3 @@
-const isSubContext = !wx.getOpenDataContext;
-
 window.boot = function () {
     var settings = window._CCSettings;
     window._CCSettings = undefined;
@@ -87,6 +85,8 @@ window.boot = function () {
         jsList = [bundledScript];
     }
 
+    var isSubContext = (cc.sys.platform === cc.sys.WECHAT_GAME_SUB);
+    
     var option = {
         id: 'GameCanvas',
         scenes: settings.scenes,

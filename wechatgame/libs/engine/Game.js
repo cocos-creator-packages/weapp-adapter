@@ -78,60 +78,17 @@ Object.assign(game, {
     },
 
     _initEvents () {
-        var win = window, hiddenPropName;
-
         // register system events
-        if (this.config.registerSystemEvent)
+        if (this.config.registerSystemEvent) {
             inputManager.registerSystemEvent(this.canvas);
-
-        if (typeof document.hidden !== 'undefined') {
-            hiddenPropName = "hidden";
-        } else if (typeof document.mozHidden !== 'undefined') {
-            hiddenPropName = "mozHidden";
-        } else if (typeof document.msHidden !== 'undefined') {
-            hiddenPropName = "msHidden";
-        } else if (typeof document.webkitHidden !== 'undefined') {
-            hiddenPropName = "webkitHidden";
         }
-
-        var hidden = false;
 
         function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                game.emit(game.EVENT_HIDE);
-            }
-        }
-        // In order to adapt the most of platforms the onshow API.
-        function onShown (arg0, arg1, arg2, arg3, arg4) {
-            if (hidden) {
-                hidden = false;
-                game.emit(game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
-            }
+            game.emit(game.EVENT_HIDE);
         }
 
-        if (hiddenPropName) {
-            var changeList = [
-                "visibilitychange",
-                "mozvisibilitychange",
-                "msvisibilitychange",
-                "webkitvisibilitychange",
-                "qbrowserVisibilityChange"
-            ];
-            for (var i = 0; i < changeList.length; i++) {
-                document.addEventListener(changeList[i], function (event) {
-                    var visible = document[hiddenPropName];
-                    // QQ App
-                    visible = visible || event["hidden"];
-                    if (visible)
-                        onHidden();
-                    else
-                        onShown();
-                });
-            }
-        } else {
-            win.addEventListener("blur", onHidden);
-            win.addEventListener("focus", onShown);
+        function onShown (res) {
+            game.emit(game.EVENT_SHOW, res);
         }
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {

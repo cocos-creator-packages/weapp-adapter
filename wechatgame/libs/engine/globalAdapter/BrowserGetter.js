@@ -1,5 +1,5 @@
 function adaptBrowserGetter (BrowserGetter) {
-    const isSubContext = !wx.getOpenDataContext;
+    const isSubContext = (cc.sys.platform === cc.sys.WECHAT_GAME_SUB);
 
     BrowserGetter.init = function () {
         this.adaptationType = undefined;
