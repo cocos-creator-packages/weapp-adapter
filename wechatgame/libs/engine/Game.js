@@ -57,7 +57,7 @@ Object.assign(game, {
                 // MSAA is causing serious performance dropdown on some browsers.
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
-                'preserveDrawingBuffer': true,
+                'preserveDrawingBuffer': false,
             };
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
