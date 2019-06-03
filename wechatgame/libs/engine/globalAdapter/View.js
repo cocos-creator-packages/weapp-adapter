@@ -10,7 +10,7 @@ function adaptView (viewProto) {
         },
     
         enableAutoFullScreen: function(enabled) {
-            // wx not support
+            cc.warn('cc.view.enableAutoFullScreen() is not supported on wechatgame platform.');
         },
     });
 }
