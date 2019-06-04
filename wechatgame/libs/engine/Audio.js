@@ -10,8 +10,6 @@ if (Audio) {
             }
             this._element.src = elem.src;
         },
-        
-        _touchToPlay () { },
 
         destroy () {
             if (this._element) {
