@@ -7,6 +7,8 @@ const canvasPosition = {
 };
 
 Object.assign(inputManager, {
+    _updateCanvasBoundingRect () {},
+    
     registerSystemEvent (element) {
         if(this._isRegisterEvent) return;
 
