@@ -293,12 +293,12 @@ function cacheFile (url, isCopy, cachePath) {
                         }
                         cachedFiles[item.cachePath] = 1;
                         writeCacheFile();
+                        if (!cc.js.isEmptyObject(cacheQueue) && !checkNextPeriod) {
+                            checkNextPeriod = true;
+                            setTimeout(cache, wxDownloader.cachePeriod);
+                        }
                     });
                     delete cacheQueue[srcUrl];
-                }
-                if (!cc.js.isEmptyObject(cacheQueue) && !checkNextPeriod) {
-                    checkNextPeriod = true;
-                    setTimeout(cache, wxDownloader.cachePeriod);
                 }
                 return;
             }
