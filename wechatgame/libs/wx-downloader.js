@@ -299,12 +299,15 @@ function cacheFile (url, isCopy, cachePath) {
                     func(srcUrl, localPath, function (err) {
                         checkNextPeriod = false;
                         if (err)  {
-                            errTest.test(err.message) && (wxDownloader.outOfStorage = true);
-                            return;
+                            if (errTest.test(err.message)) {
+                                wxDownloader.outOfStorage = true;
+                                return;
+                            }
+                        } else {
+                            cachedFiles[item.cachePath] = 1;
+                            delete cacheQueue[srcUrl];
+                            writeCacheFile();
                         }
-                        cachedFiles[item.cachePath] = 1;
-                        delete cacheQueue[srcUrl];
-                        writeCacheFile();
                         if (!cc.js.isEmptyObject(cacheQueue)) {
                             checkNextPeriod = true;
                             setTimeout(cache, wxDownloader.cachePeriod);
