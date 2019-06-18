@@ -360,18 +360,33 @@ function downloadRemoteFile (item, callback) {
 }
 
 var callbacks = [];
+var nextCallbacks = [];
+var startWrite = false;
 function writeCacheFile (cb) {
-    cb && callbacks.push(cb);
     function write () {
+        writeCacheFileList = null;
+        startWrite = true;
         wxFsUtils.writeFile(wxDownloader.cacheDir + '/' + wxDownloader.cachedFileName, JSON.stringify(cachedFiles), 'utf8', function () {
-            writeCacheFileList = null;
+            startWrite = false;
             for (let i = 0, j = callbacks.length; i < j; i++) {
                 callbacks[i]();
             }
             callbacks.length = 0;
+            callbacks.push.apply(callbacks, nextCallbacks);
+            nextCallbacks.length = 0;
         });
     }
-    !writeCacheFileList && (writeCacheFileList = setTimeout(write, wxDownloader.writeFilePeriod));
+    if (!writeCacheFileList) {
+        writeCacheFileList = setTimeout(write, wxDownloader.writeFilePeriod);
+        if (startWrite === true) {
+            cb && nextCallbacks.push(cb);
+        }
+        else {
+            cb && callbacks.push(cb);
+        }
+    } else {
+        cb && callbacks.push(cb);
+    }
 }
 
 function shouldReadFile (type) {

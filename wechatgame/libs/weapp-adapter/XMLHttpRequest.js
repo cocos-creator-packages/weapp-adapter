@@ -94,34 +94,41 @@ export default class XMLHttpRequest extends EventTarget {
         url: _url.get(this),
         method: _method.get(this),
         header: _requestHeader.get(this),
-        responseType: this.responseType,
+        dataType: 'other',
+        responseType: this.responseType === 'arraybuffer' ? 'arraybuffer' : 'text',
         success: ({ data, statusCode, header }) => {
-          if (typeof data !== 'string' && !(data instanceof ArrayBuffer)) {
-            try {
-              data = JSON.stringify(data)
-            } catch (e) {
-              data = data
-            }
-          }
-
           this.status = statusCode
           _responseHeader.set(this, header)
           _triggerEvent.call(this, 'loadstart')
           _changeReadyState.call(this, XMLHttpRequest.HEADERS_RECEIVED)
           _changeReadyState.call(this, XMLHttpRequest.LOADING)
 
-          this.response = data
+          switch (this.responseType) {
+            case 'json':
+              this.responseText = data;
+              try {
+                this.response = JSON.parse(data);
+              }
+              catch (e) {
+                this.response = null;
+              }
+              break;
+            case '':
+            case 'text':
+              this.responseText = this.response = data;
+              break;
+            case 'arraybuffer': 
+              this.response = data;
+              this.responseText = '';
+              var bytes = new Uint8Array(data);
+              var len = bytes.byteLength;
 
-          if (data instanceof ArrayBuffer) {
-            this.responseText = ''
-            const bytes = new Uint8Array(data)
-            const len = bytes.byteLength
-
-            for (let i = 0; i < len; i++) {
-              this.responseText += String.fromCharCode(bytes[i])
-            }
-          } else {
-            this.responseText = data
+              for (var i = 0; i < len; i++) {
+                this.responseText += String.fromCharCode(bytes[i]);
+              }
+              break;
+            default:
+              this.response = null;
           }
           _changeReadyState.call(this, XMLHttpRequest.DONE)
           _triggerEvent.call(this, 'load')
