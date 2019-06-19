@@ -1,5 +1,5 @@
 (function () {
-    if (!(cc && cc.Audio)) {
+    if (!(cc && cc.Audio && cc.sys.platform === cc.sys.ANDROID)) {
         return;
     }
     cc.Audio.prototype.stop = function () {
