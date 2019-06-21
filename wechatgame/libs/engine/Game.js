@@ -36,14 +36,14 @@ cc.game.getFrameRate = function () {
 cc.game._runMainLoop = function () {
     var self = this, callback, config = self.config,
         director = cc.director,
-        skip = true, frameRate = config.frameRate;
+        skip = true;
 
     cc.debug.setDisplayStats(config.showFPS);
 
     callback = function () {
         if (!self._paused) {
             self._intervalId = window.requestAnimFrame(callback);
-            if (frameRate === 30) {
+            if (_frameRate === 30) {
                 if (skip = !skip) {
                     return;
                 }
@@ -61,7 +61,7 @@ cc.game.end = function () {};
 //  Small game in the screen log
 var offset = 100;
 var once = true;
-wx.onError(function (info) {
+wx.onError && wx.onError(function (info) {
     if (!once) {
         return;
     }
