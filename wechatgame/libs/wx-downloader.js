@@ -51,11 +51,11 @@ WXDownloader.prototype.init = function () {
         // whether or not cache asset into user's storage space
         this.cacheAsset = true;
         // cache one per cycle
-        this.cachePeriod = 100;
+        this.cachePeriod = 500;
         // whether or not storage space is run out of
         this.outOfStorage = false;
 
-        this.writeFilePeriod = 1000;
+        this.writeFilePeriod = 2000;
 
         cacheQueue = {};
         packageFiles = {};
@@ -102,24 +102,7 @@ WXDownloader.prototype.handle = function (item, callback) {
         return;
     }
 
-    function seek (inPackage) {
-        if (inPackage) {
-            handleItem(item, callback);
-        }
-        else {
-            readFromLocal(item, callback);
-        }
-    }
-
-    if (item.url in packageFiles) {
-        seek(packageFiles[item.url]);
-    }
-    else {
-        wxFsUtils.exists(item.url, function (existance) {
-            packageFiles[item.url] = existance;
-            seek(existance);
-        });
-    }
+    readFromLocal(item, callback);
 };
 
 WXDownloader.prototype.cleanOldAssets = function () {
@@ -163,9 +146,11 @@ WXDownloader.prototype.cleanCache = function (filePath) {
     if (filePath in cachedFiles) {
         var self = this;
         delete cachedFiles[filePath];
-        wxFsUtils.writeFileSync(this.cacheDir + '/' + this.cachedFileName, JSON.stringify(cachedFiles), 'utf8');
-        wxFsUtils.deleteFile(this.cacheDir + '/' + filePath, function (err) {
-            if (!err) self.outOfStorage = false;
+        writeCacheFile(function () {
+            if (filePath in cachedFiles) return;
+            wxFsUtils.deleteFile(self.cacheDir + '/' + filePath, function (err) {
+                if (!err) self.outOfStorage = false;
+            });
         });
     }
 };
@@ -197,15 +182,26 @@ WXDownloader.prototype.cleanAllCaches = function (exclude, callback) {
             delete cachedFiles[path];
             toDelete.push(path);
         }
-        wxFsUtils.writeFileSync(self.cacheDir + '/' + self.cachedFileName, JSON.stringify(cachedFiles), 'utf8');
-        var count = 0;
-        for (var i = 0, l = toDelete.length; i < l; i ++) {
-            wxFsUtils.deleteFile(self.cacheDir + '/' + toDelete[i], function (err) {
-                if (!err) self.outOfStorage = false;
-                count++;
-                if (count === l) callback && callback(null);
-            })
-        }
+        writeCacheFile(function () {
+            var count = 0;
+            for (var i = 0, l = toDelete.length; i < l; i ++) {
+                if (toDelete[i] in cachedFiles) {
+                    count++;
+                    if (count === l) {
+                        self.outOfStorage = false;
+                        callback && callback(null);
+                    }
+                    continue;
+                }
+                wxFsUtils.deleteFile(self.cacheDir + '/' + toDelete[i], function (err) {
+                    count++;
+                    if (count === l) {
+                        self.outOfStorage = false;
+                        callback && callback(null);
+                    }
+                });
+            }
+        });
     });
     if (result) callback(result);
 };
@@ -254,22 +250,37 @@ function readFromLocal (item, callback) {
     }
 
     var cachedPath = wxDownloader.getCacheName(item.url);
-    var localPath = wxDownloader.cacheDir + '/' + cachedPath;
 
     if (cachedPath in cachedFiles) {
         // cache new asset
         _newAssets[cachedPath] = true;
-        item.url = localPath;
+        item.url = wxDownloader.cacheDir + '/' + cachedPath;
         registerFailHandler(item, cachedPath);
         handleItem(item, callback);
     }
     else {
-        if (!wxDownloader.REMOTE_SERVER_ROOT) {
-            callback(null, null);
-            return;
+        function seek (inPackage) {
+            if (inPackage) {
+                handleItem(item, callback);
+            }
+            else {
+                if (!wxDownloader.REMOTE_SERVER_ROOT) {
+                    callback(null, null);
+                    return;
+                }
+                downloadRemoteFile(item, callback);
+            }
         }
-
-        downloadRemoteFile(item, callback);
+    
+        if (item.url in packageFiles) {
+            seek(packageFiles[item.url]);
+        }
+        else {
+            wxFsUtils.exists(item.url, function (existance) {
+                packageFiles[item.url] = existance;
+                seek(existance);
+            });
+        }
     }
 }
 
@@ -279,7 +290,6 @@ function cacheFile (url, isCopy, cachePath) {
     if (!checkNextPeriod) {
         checkNextPeriod = true;
         function cache () {
-            checkNextPeriod = false;
             for (var srcUrl in cacheQueue) {
                 if (!wxDownloader.outOfStorage) {
                     var item = cacheQueue[srcUrl]
@@ -287,21 +297,29 @@ function cacheFile (url, isCopy, cachePath) {
                     var func = wxFsUtils.copyFile;
                     if (!item.isCopy) func = wxFsUtils.downloadFile; 
                     func(srcUrl, localPath, function (err) {
+                        checkNextPeriod = false;
                         if (err)  {
-                            errTest.test(err.message) && (wxDownloader.outOfStorage = true);
-                            return;
+                            if (errTest.test(err.message)) {
+                                wxDownloader.outOfStorage = true;
+                                return;
+                            }
+                        } else {
+                            cachedFiles[item.cachePath] = 1;
+                            delete cacheQueue[srcUrl];
+                            writeCacheFile();
                         }
-                        cachedFiles[item.cachePath] = 1;
-                        writeCacheFile();
-                        if (!cc.js.isEmptyObject(cacheQueue) && !checkNextPeriod) {
+                        if (!cc.js.isEmptyObject(cacheQueue)) {
                             checkNextPeriod = true;
                             setTimeout(cache, wxDownloader.cachePeriod);
                         }
                     });
-                    delete cacheQueue[srcUrl];
+                }
+                else {
+                    checkNextPeriod = false;
                 }
                 return;
             }
+            checkNextPeriod = false;
         };
         setTimeout(cache, wxDownloader.cachePeriod);
     }
@@ -344,12 +362,34 @@ function downloadRemoteFile (item, callback) {
     
 }
 
-function writeCacheFile () {
+var callbacks = [];
+var nextCallbacks = [];
+var startWrite = false;
+function writeCacheFile (cb) {
     function write () {
-        writeCacheFileList = null; 
-        wxFsUtils.writeFile(wxDownloader.cacheDir + '/' + wxDownloader.cachedFileName, JSON.stringify(cachedFiles), 'utf8');
+        writeCacheFileList = null;
+        startWrite = true;
+        wxFsUtils.writeFile(wxDownloader.cacheDir + '/' + wxDownloader.cachedFileName, JSON.stringify(cachedFiles), 'utf8', function () {
+            startWrite = false;
+            for (let i = 0, j = callbacks.length; i < j; i++) {
+                callbacks[i]();
+            }
+            callbacks.length = 0;
+            callbacks.push.apply(callbacks, nextCallbacks);
+            nextCallbacks.length = 0;
+        });
     }
-    !writeCacheFileList && (writeCacheFileList = setTimeout(write, wxDownloader.writeFilePeriod));
+    if (!writeCacheFileList) {
+        writeCacheFileList = setTimeout(write, wxDownloader.writeFilePeriod);
+        if (startWrite === true) {
+            cb && nextCallbacks.push(cb);
+        }
+        else {
+            cb && callbacks.push(cb);
+        }
+    } else {
+        cb && callbacks.push(cb);
+    }
 }
 
 function shouldReadFile (type) {
@@ -423,56 +463,3 @@ var map = {
     'pvr': FileType.BIN,
     'pkm': FileType.BIN
 };
-// function downloadRemoteTextFile (item, callback) {
-//     // Download from remote server
-//     var relatUrl = item.url;
-//     var remoteUrl = wxDownloader.REMOTE_SERVER_ROOT + '/' + relatUrl;
-//     item.url = remoteUrl;
-//     wx.request({
-//         url: remoteUrl,
-//         success: function(res) {
-//             if (res.data) {
-//                 if (res.statusCode === 200 || res.statusCode === 0) {
-//                     var data = res.data;
-//                     item.states[cc.loader.downloader.ID] = cc.Pipeline.ItemState.COMPLETE;
-//                     if (data) {
-//                         if (typeof data !== 'string' && !(data instanceof ArrayBuffer)) {
-//                             // Should we check if item.type is json ? If not, loader behavior could be different
-//                             item.states[cc.loader.loader.ID] = cc.Pipeline.ItemState.COMPLETE;
-//                             callback(null, data);
-//                             data = JSON.stringify(data);
-//                         }
-//                         else {
-//                             callback(null, data);
-//                         }
-//                     }
-
-//                     // Save to local path
-//                     var localPath = wx.env.USER_DATA_PATH + '/' + relatUrl;
-//                     // Should recursively mkdir first
-//                     fs.writeFile({
-//                         filePath: localPath,
-//                         data: data,
-//                         encoding: 'utf8',
-//                         success: function (res) {
-//                             cc.log('Write file to ' + res.savedFilePath + ' successfully!');
-//                         },
-//                         fail: function (res) {
-//                             // undone implementation
-//                         }
-//                     });
-//                 } else {
-//                     cc.warn("Download text file failed: " + remoteUrl);
-//                     callback({
-//                         status:0, 
-//                         errorMessage: res && res.errMsg ? res.errMsg : "Download text file failed: " + remoteUrl
-//                     });
-//                 }
-//             }
-//         },
-//         fail: function (res) {
-//             // Continue to try download with downloader, most probably will also fail
-//             callback(null, null);
-//         }
-//     });
-// }

@@ -61,10 +61,12 @@ function downloadFile (remoteUrl, filePath, callback) {
                     deleteFile(res.filePath);
                 }
                 console.warn("Download file failed: " + remoteUrl);
+                console.warn(res.errMsg);
                 callback && callback(new Error(res.errMsg), null);
             }
         },
         fail: function (res) {
+            console.warn("Download file failed: " + remoteUrl);
             console.warn(res.errMsg);
             callback && callback(new Error(res.errMsg), null);
         }
