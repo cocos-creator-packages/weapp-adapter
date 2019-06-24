@@ -26,6 +26,7 @@ var ID = 'WXDownloader';
 const wxFsUtils = require('./wx-fs-utils');
 
 const REGEX = /^\w+:\/\/.*/;
+const isSubContext = (cc.sys.platform === cc.sys.WECHAT_GAME_SUB);
 
 var packageFiles = null;
 var cachedFiles = null;
@@ -45,7 +46,7 @@ var WXDownloader = window.WXDownloader = function () {
 WXDownloader.ID = ID;
 
 WXDownloader.prototype.init = function () {
-    if (!CC_WECHATGAMESUB) {
+    if (!isSubContext) {
         this.cacheDir = wx.env.USER_DATA_PATH + '/gamecaches';
         this.cachedFileName = 'cacheList.json';
         // whether or not cache asset into user's storage space
@@ -89,7 +90,7 @@ WXDownloader.prototype.handle = function (item, callback) {
         }
     }
 
-    if (CC_WECHATGAMESUB) {
+    if (isSubContext) {
         // if wx.getFileSystemManager is undefined, need to skip
         if (REGEX.test(item.url)) {
             return null;
