@@ -11,7 +11,7 @@
     "cocos": {
       "provider": "wx52ac1b08c504a785",
       "version": "",
-      "path": "cocos/cocos2d-js-min.js"
+      "path": "cocos"
     }
   }
 }
