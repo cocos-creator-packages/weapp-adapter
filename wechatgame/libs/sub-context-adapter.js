@@ -1,3 +1,7 @@
+function ResizeEvent () {
+    this.type = 'resize';
+}
+
 var viewportInMain = {
     x: 0,
     y: 0,
@@ -31,6 +35,7 @@ wx.onMessage(function (data) {
             viewportInMain.y = data.y;
             viewportInMain.width = data.width;
             viewportInMain.height = data.height;
+            window.dispatchEvent(new ResizeEvent());
         }
         else if (data.event === 'mainLoop') {
             if (data.value) {
