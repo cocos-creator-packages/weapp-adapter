@@ -9,9 +9,9 @@
   },
   "plugins": {
     "cocos": {
-      "provider": "wx52ac1b08c504a785",
+      "provider": "wxe4fa5b4c95d8b11c",
       "version": "",
-      "path": "cocos/cocos2d-js-min.js"
+      "path": "cocos"
     }
   }
 }

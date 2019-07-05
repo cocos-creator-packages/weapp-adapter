@@ -24,6 +24,24 @@ cc.view.convertToLocationInView = function (tx, ty, relatedPos, out) {
     return result;
 };
 
+// In sub context, run main loop after subContextView component get enabled.
+cc.game._prepareFinished = function (cb) {
+    this._prepared = true;
+
+    // Init engine
+    this._initEngine();
+    cc.AssetLibrary._loadBuiltins(() => {
+        // Log engine version
+        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+
+        this._setAnimFrame();
+        
+        this.emit(this.EVENT_GAME_INITED);
+
+        if (cb) cb();
+    });
+};
+
 wx.onMessage(function (data) {
     if (data.fromEngine) {
         if (data.event === 'viewport') {
@@ -42,6 +60,9 @@ wx.onMessage(function (data) {
         }
         else if (data.event === 'frameRate') {
             cc.game.setFrameRate(data.value);
+        }
+        else if (data.event === 'step') {
+            cc.game.step();
         }
     }
 });
