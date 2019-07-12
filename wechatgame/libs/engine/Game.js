@@ -123,7 +123,9 @@ Object.assign(game, {
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
             wx.onShow && wx.onShow(onShown);
+            wx.onAudioInterruptionEnd && wx.onAudioInterruptionEnd(onShown);
             wx.onHide && wx.onHide(onHidden);
+            wx.onAudioInterruptionBegin && wx.onAudioInterruptionBegin(onHidden);
         }
 
         this.on(game.EVENT_HIDE, function () {
