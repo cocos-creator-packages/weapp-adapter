@@ -73,6 +73,13 @@ function adaptSys (sys) {
         DELAY_CREATE_CTX: false,
         format: ['.mp3']
     };
+
+    sys.glExtension = function (name) {
+        if (name === 'OES_texture_float') {
+            return false;
+        }
+        return !!cc.renderer.device.ext(name);
+    };
 }
 
 module.exports = adaptSys;
