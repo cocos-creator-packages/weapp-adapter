@@ -170,7 +170,7 @@ var cacheManager = {
             self.writeCacheFile(function () {
                 for (var srcUrl in toDelete) {
                     var url = toDelete[srcUrl].url;
-                    if (url.starstWith(self.cacheDir)) continue;
+                    if (url.startsWith(self.cacheDir)) continue;
                     deleteFile(url, self._deleteFileCB);
                 }
                 for (var i = 0, l = list.length; i < l; i ++) {
