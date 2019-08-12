@@ -305,8 +305,9 @@
         let w = this._w * scaleX;
         let h = this._h * scaleY;
         let appx = (w * _mat4_temp.m00) * node._anchorPoint.x;
-        let appy = (h * _mat4_temp.m05) * (1- node._anchorPoint.y);
+        let appy = (h * _mat4_temp.m05) * (1 - node._anchorPoint.y);  // original point of video is (0, 1)
         let tx = _mat4_temp.m12 * scaleX - appx, ty = _mat4_temp.m13 * scaleY - appy;
+        // calculate scale
         w *= _mat4_temp.m00;
         h *= _mat4_temp.m05;
 
