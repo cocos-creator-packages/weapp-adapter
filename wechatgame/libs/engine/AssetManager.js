@@ -203,7 +203,7 @@ function transformUrl (url, options) {
             url = SUBCONTEXT_ROOT + '/' + url;
         }
     }
-    return { url, inLocal, inCache};
+    return { url, inLocal, inCache };
 }
 
 cc.assetManager._transformPipeline.append(function (task) {

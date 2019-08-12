@@ -47,6 +47,11 @@ window.boot = function () {
     var resourcesRoot = 'assets/resources';
     var internalRoot = 'assets/internal';
     var scenesRoot = 'assets/scenes';
+    if (REMOTE_SERVER_ROOT) {
+        resourcesRoot = REMOTE_SERVER_ROOT + '/' + resourcesRoot;
+        internalRoot = REMOTE_SERVER_ROOT + '/' + internalRoot;
+        scenesRoot = REMOTE_SERVER_ROOT + '/' + scenesRoot;
+    }
     var count = 0;
     function cb (err) {
         if (!err) count++;

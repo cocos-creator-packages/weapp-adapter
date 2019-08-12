@@ -97,7 +97,7 @@ var cacheManager = {
 
     writeCacheFile (cb) {
         if (!writeCacheFileList) {
-            writeCacheFileList = setTimeout(this._write, this.writeFilePeriod);
+            writeCacheFileList = setTimeout(cacheManager._write, cacheManager.writeFilePeriod);
             if (startWrite === true) {
                 cb && nextCallbacks.push(cb);
             }
@@ -167,16 +167,16 @@ var cacheManager = {
             if (err) return;
             var toDelete = self.cachedFiles._map;
             self.cachedFiles.clear();
-            writeCacheFile(function () {
+            self.writeCacheFile(function () {
                 for (var srcUrl in toDelete) {
                     var url = toDelete[srcUrl].url;
                     if (url.starstWith(self.cacheDir)) continue;
-                    deleteFile(url, this._deleteFileCB);
+                    deleteFile(url, self._deleteFileCB);
                 }
                 for (var i = 0, l = list.length; i < l; i ++) {
                     var path = list[i];
                     if (path === self.cachedFileName) continue;
-                    deleteFile(self.cacheDir + '/' + list[i], this._deleteFileCB);
+                    deleteFile(self.cacheDir + '/' + list[i], self._deleteFileCB);
                 }
             });
         });
@@ -184,20 +184,19 @@ var cacheManager = {
 
     cleanLRU () {
         if (cleaning) return;
-        var self = this;
         cleaning = true;
         var caches = [];
-        this.cachedFiles.forEach(function (val, key) {
+        cacheManager.cachedFiles.forEach(function (val, key) {
             caches.push({ originUrl: key, url: val.url, lastTime: val.lastTime });
         });
         caches.sort(function (a, b) {
             return a.lastTime - b.lastTime;
         });
-        caches.length = Math.floor(this.cachedFiles.count / 3);
+        caches.length = Math.floor(cacheManager.cachedFiles.count / 3);
         for (var i = 0, l = caches.length; i < l; i++) {
-            this.cachedFiles.remove(caches[i].originUrl);
+            cacheManager.cachedFiles.remove(caches[i].originUrl);
         }
-        this.writeCacheFile(function () {
+        cacheManager.writeCacheFile(function () {
             function deferredDelete () {
                 var item = caches.pop();
                 deleteFile(item.url, self._deleteFileCB);
@@ -217,14 +216,14 @@ var cacheManager = {
         if (this.cachedFiles.has(url)) {
             var self = this;
             var path = this.cachedFiles.remove(url).url;
-            writeCacheFile(function () {
-                deleteFile(path, this._deleteFileCB);
+            this.writeCacheFile(function () {
+                deleteFile(path, self._deleteFileCB);
             });
         }
     },
 
     _deleteFileCB (err) {
-        if (!err) this.outOfStorage = false;
+        if (!err) cacheManager.outOfStorage = false;
     }
     
 }
