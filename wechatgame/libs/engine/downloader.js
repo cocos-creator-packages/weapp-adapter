@@ -89,11 +89,26 @@ cc.loader.downloader.addHandlers({
     webp : downloadWebp,
     image : downloadImage,
     
+    // Video
     mp4: downloadVideo,
+    avi: downloadVideo,
+    mov: downloadVideo,
+    mpg: downloadVideo,
+    mpeg: downloadVideo,
+    rm: downloadVideo,
+    rmvb: downloadVideo,
 });
 
 cc.loader.loader.addHandlers({
+    // Video
     mp4: loadVideo,
+    avi: loadVideo,
+    mov: loadVideo,
+    mpg: loadVideo,
+    mpeg: loadVideo,
+    rm: loadVideo,
+    rmvb: loadVideo,
+
     // Font
     font: loadFont,
     eot: loadFont,

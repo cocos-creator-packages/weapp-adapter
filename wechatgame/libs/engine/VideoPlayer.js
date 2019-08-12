@@ -97,7 +97,7 @@
             return;
         }
         if (value) {
-          video.width = this._actualWidth || 0;
+            video.width = this._actualWidth || 0;
         }
         else {
             video.width = 0;  // hide video
@@ -221,7 +221,6 @@
     _p.duration = function () {
         return this._duration;
     };
-
 
     _p.currentTime = function () {        
         return this._currentTime;
