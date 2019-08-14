@@ -7,3 +7,4 @@ require('./downloader');
 require('./InputManager');
 require('./misc');
 require('./Texture');
+require('./VideoPlayer');
