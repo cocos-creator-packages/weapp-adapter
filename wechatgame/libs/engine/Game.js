@@ -122,8 +122,8 @@ Object.assign(game, {
         }
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            // onShow event will be emitted when this program runs
-            // so we should make sure that needed functions have been defined before emitting onShow event
+            // In wechat devtools, onShow event will be emitted when program runs
+            // so we should ensure window.requestAnimFrame() has been defined before emitting onShow event
             if (wx.getSystemInfoSync().platform === 'devtools') { 
                 this.on(game.EVENT_GAME_INITED, function () {
                     wx.onShow && wx.onShow(onShown);
