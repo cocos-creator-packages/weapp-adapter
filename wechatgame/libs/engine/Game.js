@@ -122,7 +122,17 @@ Object.assign(game, {
         }
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            wx.onShow && wx.onShow(onShown);
+            // Wechat develop platform may make the moment onShowEvent 
+            // finishes binding earlier than the moment game finishes initing
+            if (wx.getSystemInfoSync().platform === 'devtools') { 
+                this.on(game.EVENT_GAME_INITED, function () {
+                    wx.onShow && wx.onShow(onShown);
+                });
+            }
+            else {
+                wx.onShow && wx.onShow(onShown);
+            }
+
             wx.onAudioInterruptionEnd && wx.onAudioInterruptionEnd(onShown);
             wx.onHide && wx.onHide(onHidden);
             wx.onAudioInterruptionBegin && wx.onAudioInterruptionBegin(onHidden);
