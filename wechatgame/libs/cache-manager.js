@@ -33,7 +33,7 @@ var cleaning = false;
 
 var cacheManager = {
 
-    cacheDir: wx.env.USER_DATA_PATH + '/gamecaches',
+    cacheDir: 'gamecaches',
 
     cachedFileName: 'cacheList.json',
 
@@ -57,6 +57,7 @@ var cacheManager = {
     cacheQueue: {},
 
     init () {
+        this.cacheDir = wx.env.USER_DATA_PATH + '/' + this.cacheDir;
         var cacheFilePath = this.cacheDir + '/' + this.cachedFileName;
         var result = readJsonSync(cacheFilePath);
         if (result instanceof Error) {

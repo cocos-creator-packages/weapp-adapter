@@ -11,7 +11,6 @@ window.boot = function () {
         // load scene
         cc.director.loadScene(launchScene, null,
             function () {
-                cc.loader.onProgress = null;
                 console.log('Success to load scene: ' + launchScene);
             }
         );

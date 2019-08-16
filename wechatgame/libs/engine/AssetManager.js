@@ -52,7 +52,7 @@ function readFile(filePath, options, onComplete) {
 
 function download (url, func, options, onProgress, onComplete) {
     var result = transformUrl(url, options);
-    if (result.inLocal || isSubDomain) {
+    if (result.inLocal) {
         func(result.url, options, onComplete);
     }
     else if (result.inCache) {
@@ -77,9 +77,12 @@ function download (url, func, options, onProgress, onComplete) {
     }
 }
 
-function downloadJson (url, options, onComplete) {
+var downloadJson = !isSubDomain ? function (url, options, onComplete) {
     options.responseType = "json";
     download(url, readFile, options, options.onProgress, onComplete);
+} : function subdomainDownloadJson (url, options, onComplete) {
+    var content = require('../../' + cc.path.changeExtname(url, '.js'));
+    onComplete && onComplete(null, content);
 }
 
 function downloadArrayBuffer (url, options, onComplete) {
@@ -106,7 +109,7 @@ function downloadImage (url, options, onComplete) {
 
 function downloadImageInAndroid (url, options, onComplete) {
     var result = transformUrl(url, options);
-    if (result.inLocal || isSubDomain) {
+    if (result.inLocal) {
         downloader.downloadDomImage(result.url, options, onComplete);
     }
     else if (result.inCache) {
@@ -180,7 +183,7 @@ downloader.register({
     '.dbbin': downloadArrayBuffer,
 });
 
-function transformUrl (url, options) {
+var transformUrl = !isSubDomain ? function (url, options) {
     var inLocal = false;
     var inCache = false;
     if (REGEX.test(url)) {
@@ -199,21 +202,16 @@ function transformUrl (url, options) {
     }
     else {
         inLocal = true;
-        if (isSubDomain) {
-            url = SUBCONTEXT_ROOT + '/' + url;
-        }
     }
     return { url, inLocal, inCache };
-}
-
-cc.assetManager._transformPipeline.append(function (task) {
-    var input = task.output = task.input;
-    for (var i = 0, l = input.length; i < l; i++) {
-        var item = input[i];
-        var options = item.options;
-        if (!item.config) options.saveFile = options.saveFile !== undefined ? options.saveFile : false;
+} : function (url, options) {
+    var inLocal = false;
+    if (!REGEX.test(url)) {
+        inLocal = true;
+        url = SUBCONTEXT_ROOT + '/' + url;
     }
-});
+    return { url, inLocal, inCache: false };
+}
 
 cc.assetManager.loadBundle = function (root, options, onComplete) {
     if (typeof options === 'function') {
@@ -252,15 +250,29 @@ cc.assetManager.loadBundle = function (root, options, onComplete) {
     }
     
 };
-var originInit = cc.assetManager.init;
-cc.assetManager.init = function (options) {
-    originInit.call(cc.assetManager, options);
-    cacheManager.init();
-};
 
-var content = readJsonSync('game.json');
-if (content.subpackages) {
-    for (var i = 0, l = content.subpackages.length; i < l; i++) {
-        subpackages.add(content.subpackages[i].root, content.subpackages[i]);
+if (!isSubDomain) {
+    cc.assetManager._transformPipeline.append(function (task) {
+        var input = task.output = task.input;
+        for (var i = 0, l = input.length; i < l; i++) {
+            var item = input[i];
+            var options = item.options;
+            if (!item.config) options.saveFile = options.saveFile !== undefined ? options.saveFile : false;
+        }
+    });
+
+    var originInit = cc.assetManager.init;
+    cc.assetManager.init = function (options) {
+        originInit.call(cc.assetManager, options);
+        cacheManager.init();
+    };
+    var content = readJsonSync('game.json');
+    if (content.subpackages) {
+        for (var i = 0, l = content.subpackages.length; i < l; i++) {
+            subpackages.add(content.subpackages[i].root, content.subpackages[i]);
+        }
     }
 }
+
+
+

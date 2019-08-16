@@ -17,11 +17,6 @@ window.REMOTE_SERVER_ROOT = "";
 window.SUBCONTEXT_ROOT = "";
 
 if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-    var _WECHAT_SUBDOMAIN_DATA = require('src/subdomain.json.js');
-    cc.game.once(cc.game.EVENT_ENGINE_INITED, function () {
-        cc.Pipeline.Downloader.PackDownloader._doPreload("WECHAT_SUBDOMAIN", _WECHAT_SUBDOMAIN_DATA);
-    });
-
     require('./libs/sub-context-adapter');
 }
 else {
