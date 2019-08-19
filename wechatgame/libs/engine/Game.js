@@ -129,14 +129,15 @@ Object.assign(game, {
             if (wx.getSystemInfoSync().platform === 'devtools') { 
                 this.on(game.EVENT_GAME_INITED, function () {
                     wx.onShow && wx.onShow(onShown);
+                    wx.onHide && wx.onHide(onHidden);
                 });
             }
             else {
                 wx.onShow && wx.onShow(onShown);
+                wx.onHide && wx.onHide(onHidden);
             }
 
             wx.onAudioInterruptionEnd && wx.onAudioInterruptionEnd(onShown);
-            wx.onHide && wx.onHide(onHidden);
             wx.onAudioInterruptionBegin && wx.onAudioInterruptionBegin(onHidden);
         }
 
