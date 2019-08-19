@@ -99,6 +99,10 @@ function downloadAudio (url, options, onComplete) {
     download(url, downloadDomAudio, options, options.onProgress, onComplete);
 }
 
+function downloadVideo (url, options, onComplete) {
+    download(url, function (url, options, onComplete) { onComplete(null, url); }, options, options.onProgress, onComplete);
+}
+
 function downloadFont (url, options, onComplete) {
     download(url, loadFont, options, options.onProgress, onComplete);
 }
@@ -181,6 +185,14 @@ downloader.register({
     '.binary' : downloadArrayBuffer,
     '.bin': downloadArrayBuffer,
     '.dbbin': downloadArrayBuffer,
+
+    '.mp4': downloadVideo,
+    '.avi': downloadVideo,
+    '.mov': downloadVideo,
+    '.mpg': downloadVideo,
+    '.mpeg': downloadVideo,
+    '.rm': downloadVideo,
+    '.rmvb': downloadVideo,
 });
 
 var transformUrl = !isSubDomain ? function (url, options) {

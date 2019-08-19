@@ -7,3 +7,4 @@ require('./AssetManager');
 require('./InputManager');
 require('./misc');
 require('./Texture');
+require('./VideoPlayer');
