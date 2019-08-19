@@ -4,14 +4,14 @@
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of wxUtils software and associated engine source code (the "Software"), a limited,
+ of fsUtils software and associated engine source code (the "Software"), a limited,
   worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
- The software or tools in wxUtils License Agreement are licensed, not sold.
+ The software or tools in fsUtils License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var wxUtils = {
+var fsUtils = {
 
     fs: wx.getFileSystemManager ? wx.getFileSystemManager() : null,
 
     checkFsValid () {
-        if (!wxUtils.fs) {
+        if (!fsUtils.fs) {
             console.warn('can not get the file system!');
             return false;
         }
@@ -36,7 +36,7 @@ var wxUtils = {
     },
 
     deleteFile (filePath, onComplete) {
-        wxUtils.fs.unlink({
+        fsUtils.fs.unlink({
             filePath: filePath,
             success: function () {
                 onComplete && onComplete(null);
@@ -88,7 +88,7 @@ var wxUtils = {
     },
 
     copyFile (srcPath, destPath, onComplete) {
-        wxUtils.fs.copyFile({
+        fsUtils.fs.copyFile({
             srcPath: srcPath,
             destPath: destPath,
             success: function () {
@@ -102,7 +102,7 @@ var wxUtils = {
     },
 
     writeFile (path, data, encoding, onComplete) {
-        wxUtils.fs.writeFile({
+        fsUtils.fs.writeFile({
             filePath: path,
             encoding: encoding,
             data: data,
@@ -118,7 +118,7 @@ var wxUtils = {
 
     writeFileSync (path, data, encoding) {
         try {
-            wxUtils.fs.writeFileSync(path, data, encoding);
+            fsUtils.fs.writeFileSync(path, data, encoding);
             return null;
         }
         catch (e) {
@@ -128,7 +128,7 @@ var wxUtils = {
     },
 
     readFile (filePath, encoding, onComplete) {
-        wxUtils.fs.readFile({
+        fsUtils.fs.readFile({
             filePath: filePath,
             encoding: encoding,
             success: function (res) {
@@ -142,7 +142,7 @@ var wxUtils = {
     },
 
     readDir (filePath, onComplete) {
-        wxUtils.fs.readdir({
+        fsUtils.fs.readdir({
             dirPath: filePath,
             success: function (res) {
                 onComplete && onComplete(null, res.files);
@@ -155,15 +155,15 @@ var wxUtils = {
     },
 
     readText (filePath, onComplete) {
-        wxUtils.readFile(filePath, 'utf8', onComplete);
+        fsUtils.readFile(filePath, 'utf8', onComplete);
     },
 
     readArrayBuffer (filePath, onComplete) {
-        wxUtils.readFile(filePath, '', onComplete);
+        fsUtils.readFile(filePath, '', onComplete);
     },
 
     readJson (filePath, onComplete) {
-        wxUtils.readFile(filePath, 'utf8', function (err, text) {
+        fsUtils.readFile(filePath, 'utf8', function (err, text) {
             var out = null;
             if (!err) {
                 try {
@@ -180,7 +180,7 @@ var wxUtils = {
 
     readJsonSync (path) {
         try {
-            var str = wxUtils.fs.readFileSync(path, 'utf8');
+            var str = fsUtils.fs.readFileSync(path, 'utf8');
             return JSON.parse(str);
         }
         catch (e) {
@@ -191,7 +191,7 @@ var wxUtils = {
 
     makeDirSync (path, recursive) {
         try {
-            wxUtils.fs.mkdirSync(path, recursive);
+            fsUtils.fs.mkdirSync(path, recursive);
             return null;
         }
         catch (e) {
@@ -201,7 +201,7 @@ var wxUtils = {
     },
 
     exists (filePath, onComplete) {
-        wxUtils.fs.access({
+        fsUtils.fs.access({
             path: filePath,
             success: function () {
                 onComplete && onComplete(true);
@@ -228,4 +228,4 @@ var wxUtils = {
     }
 }
 
-cc.assetManager.wxUtils = module.exports = wxUtils;
+cc.assetManager.fsUtils = module.exports = fsUtils;

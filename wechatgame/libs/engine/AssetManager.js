@@ -1,5 +1,5 @@
 const cacheManager = require('../cache-manager');
-const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, readJsonSync } = require('../wx-utils');
+const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, readJsonSync } = require('../fs-utils');
 
 const REGEX = /^\w+:\/\/.*/;
 
@@ -111,6 +111,11 @@ function downloadImage (url, options, onComplete) {
     download(url, downloader.downloadDomImage, options, options.onProgress, onComplete);
 }
 
+function subdomainDownloadImage (url, options, onComplete) {
+    var { url } = transformUrl(url, options);
+    downloader.downloadDomImage(url, options, onComplete);
+}
+
 function downloadImageInAndroid (url, options, onComplete) {
     var result = transformUrl(url, options);
     if (result.inLocal) {
@@ -130,7 +135,7 @@ function downloadImageInAndroid (url, options, onComplete) {
     }
 }
 
-downloadImage = cc.sys.os === cc.sys.OS_ANDROID ? downloadImageInAndroid : downloadImage;
+downloadImage = isSubDomain ? subdomainDownloadImage : (cc.sys.os === cc.sys.OS_ANDROID ? downloadImageInAndroid : downloadImage);
 
 var downloadWebp = cc.sys.capabilities.webp ? downloadImage : unsupported;
 
@@ -217,12 +222,10 @@ var transformUrl = !isSubDomain ? function (url, options) {
     }
     return { url, inLocal, inCache };
 } : function (url, options) {
-    var inLocal = false;
     if (!REGEX.test(url)) {
-        inLocal = true;
         url = SUBCONTEXT_ROOT + '/' + url;
     }
-    return { url, inLocal, inCache: false };
+    return { url };
 }
 
 cc.assetManager.loadBundle = function (root, options, onComplete) {

@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, writeFile, readDir, deleteFile } = require('./wx-utils');
+const { readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, writeFile, readDir, deleteFile } = require('./fs-utils');
 
 var checkNextPeriod = false;
 var writeCacheFileList = null;
@@ -71,7 +71,7 @@ var cacheManager = {
         }
         this.tempFiles = new cc.AssetManager.Cache();
         wx.onHide(function () {
-            writeFileSync(cacheFilePath, JSON.stringify({ files: this.cachedFiles._map, outOfStorage: this.outOfStorage }), 'utf8');
+            writeFileSync(cacheFilePath, JSON.stringify({ files: cacheManager.cachedFiles._map, outOfStorage: cacheManager.outOfStorage }), 'utf8');
         });
     },
 
