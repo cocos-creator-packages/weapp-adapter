@@ -13,8 +13,13 @@ function downloadScript (url, options, onComplete) {
         onComplete = options;
         options = null;
     }
-    require('../../' + url);
-    onComplete && onComplete(null);
+    if (REGEX.test(url)) {
+        onComplete && onComplete(new Error('wechat does not support loading remote scripts'));
+    }
+    else {
+        require('../../' + url);
+        onComplete && onComplete(null);
+    }
 }
 
 function unsupported (url, options, onComplete) {
@@ -254,13 +259,17 @@ cc.assetManager.loadBundle = function (root, options, onComplete) {
     }
     else {
         downloadJson(config, options, function (err, json) {
-            var bundle = null;
             if (!err) {
-                bundle = new cc.AssetManager.Bundle();
+                var bundle = new cc.AssetManager.Bundle();
                 json.base = root + '/';
                 bundle.init(json);
+                if (!json.scripts) return onComplete && onComplete(null, bundle);
+                cc.assetManager.loadScript(root + '/game.js', options, function (err) {
+                    onComplete && onComplete(null, bundle);
+                });
+                return;
             }
-            onComplete && onComplete(err, bundle);
+            onComplete && onComplete(err, null);
         });
     }
     
