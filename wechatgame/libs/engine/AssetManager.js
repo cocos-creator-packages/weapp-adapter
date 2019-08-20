@@ -26,11 +26,6 @@ function unsupported (url, options, onComplete) {
     onComplete(new Error(cc.debug.getError(4927)));
 }
 
-function loadFont (url, options, onComplete) {
-    var fontFamily = wx.loadFont(url);
-    onComplete(null, fontFamily || 'Arial');
-}
-
 function downloadDomAudio (url, options, onComplete) {
     if (typeof options === 'function') {
         onComplete = options;
@@ -88,6 +83,13 @@ var downloadJson = !isSubDomain ? function (url, options, onComplete) {
 } : function subdomainDownloadJson (url, options, onComplete) {
     var content = require('../../' + cc.path.changeExtname(url, '.js'));
     onComplete && onComplete(null, content);
+}
+
+var loadFont = !isSubDomain ? function (url, options, onComplete) {
+    var fontFamily = wx.loadFont(url);
+    onComplete(null, fontFamily || 'Arial');
+} : function (url, options, onComplete) {
+    onComplete(null, 'Arial');
 }
 
 function downloadArrayBuffer (url, options, onComplete) {

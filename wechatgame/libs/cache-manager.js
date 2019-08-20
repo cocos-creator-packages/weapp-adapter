@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, writeFile, readDir, deleteFile } = require('./fs-utils');
+const { readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, writeFile, readDir, deleteFile, rmdirSync } = require('./fs-utils');
 
 var checkNextPeriod = false;
 var writeCacheFileList = null;
@@ -30,6 +30,7 @@ var startWrite = false;
 var nextCallbacks = [];
 var callbacks = [];
 var cleaning = false;
+var errTest = /the maximum size of the file storage/;
 
 var cacheManager = {
 
@@ -56,23 +57,23 @@ var cacheManager = {
 
     cacheQueue: {},
 
+    version: '1.0',
+
     init () {
         this.cacheDir = wx.env.USER_DATA_PATH + '/' + this.cacheDir;
         var cacheFilePath = this.cacheDir + '/' + this.cachedFileName;
         var result = readJsonSync(cacheFilePath);
-        if (result instanceof Error) {
+        if (result instanceof Error || !result.version) {
+            if (!(result instanceof Error)) rmdirSync(this.cacheDir, true);
             this.cachedFiles = new cc.AssetManager.Cache();
             makeDirSync(this.cacheDir, true);
-            writeFileSync(cacheFilePath, JSON.stringify({ files: this.cachedFiles._map, outOfStorage: this.outOfStorage }), 'utf8');
+            writeFileSync(cacheFilePath, JSON.stringify({ files: this.cachedFiles._map, outOfStorage: this.outOfStorage, version: this.version }), 'utf8');
         }
         else {
             this.cachedFiles = new cc.AssetManager.Cache(result.files);
             this.outOfStorage = result.outOfStorage;
         }
         this.tempFiles = new cc.AssetManager.Cache();
-        wx.onHide(function () {
-            writeFileSync(cacheFilePath, JSON.stringify({ files: cacheManager.cachedFiles._map, outOfStorage: cacheManager.outOfStorage }), 'utf8');
-        });
     },
 
     updateLastTime (url) {
@@ -85,7 +86,7 @@ var cacheManager = {
     _write () {
         writeCacheFileList = null;
         startWrite = true;
-        writeFile(cacheManager.cacheDir + '/' + cacheManager.cachedFileName, JSON.stringify({ files: cacheManager.cachedFiles._map, outOfStorage: cacheManager.outOfStorage }), 'utf8', function () {
+        writeFile(cacheManager.cacheDir + '/' + cacheManager.cachedFileName, JSON.stringify({ files: cacheManager.cachedFiles._map, outOfStorage: cacheManager.outOfStorage, version: cacheManager.version }), 'utf8', function () {
             startWrite = false;
             for (let i = 0, j = callbacks.length; i < j; i++) {
                 callbacks[i]();

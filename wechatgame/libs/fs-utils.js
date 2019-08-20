@@ -200,6 +200,16 @@ var fsUtils = {
         }
     },
 
+    rmdirSync (dirPath, recursive) {
+        try {
+            fsUtils.fs.rmdirSync(dirPath, recursive);
+        }
+        catch (e) {
+            cc.warn('rm directory failed: ' + e.message);
+            return new Error(e.message);
+        }
+    },
+
     exists (filePath, onComplete) {
         fsUtils.fs.access({
             path: filePath,
