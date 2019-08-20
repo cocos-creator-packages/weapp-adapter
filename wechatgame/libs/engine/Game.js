@@ -122,14 +122,11 @@ Object.assign(game, {
         }
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            // In wechat devtools, onShow event will be emitted before game is inited
-            // but some functions which onShow will call haven't been defined before game is inited in devtools platform
-            // so we shouldn't register onShow event before game is inited in devtools platform
-            // there is no such problem in other platforms by now
+            // to prevent window.requestAnimFrame() from being not defined when use it in onShow callback in wechat platform, we should use _setAnimFrame() to define it in advance
             if (wx.getSystemInfoSync().platform === 'devtools') { 
                 cc.game._setAnimFrame();
             }
-            
+
             wx.onShow && wx.onShow(onShown);
             wx.onAudioInterruptionEnd && wx.onAudioInterruptionEnd(onShown);
             wx.onHide && wx.onHide(onHidden);
