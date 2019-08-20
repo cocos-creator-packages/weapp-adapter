@@ -127,17 +127,12 @@ Object.assign(game, {
             // so we shouldn't register onShow event before game is inited in devtools platform
             // there is no such problem in other platforms by now
             if (wx.getSystemInfoSync().platform === 'devtools') { 
-                this.on(game.EVENT_GAME_INITED, function () {
-                    wx.onShow && wx.onShow(onShown);
-                    wx.onHide && wx.onHide(onHidden);
-                });
+                cc.game._setAnimFrame();
             }
-            else {
-                wx.onShow && wx.onShow(onShown);
-                wx.onHide && wx.onHide(onHidden);
-            }
-
+            
+            wx.onShow && wx.onShow(onShown);
             wx.onAudioInterruptionEnd && wx.onAudioInterruptionEnd(onShown);
+            wx.onHide && wx.onHide(onHidden);
             wx.onAudioInterruptionBegin && wx.onAudioInterruptionBegin(onHidden);
         }
 
