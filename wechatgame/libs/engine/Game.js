@@ -122,7 +122,9 @@ Object.assign(game, {
         }
 
         if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            // to prevent window.requestAnimFrame() from being not defined when use it in onShow callback in wechat platform, we should use _setAnimFrame() to define it in advance
+            // wechat devtools will call onShow when the program launch
+            // window.requestAnimFrame() should have defined before this
+            // so we need to use _setAnimFrame to define it in advance
             if (wx.getSystemInfoSync().platform === 'devtools') { 
                 cc.game._setAnimFrame();
             }
