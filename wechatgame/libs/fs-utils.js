@@ -22,13 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+var fs = wx.getFileSystemManager ? wx.getFileSystemManager() : null;
 var fsUtils = {
 
-    fs: wx.getFileSystemManager ? wx.getFileSystemManager() : null,
+    fs,
 
     checkFsValid () {
-        if (!fsUtils.fs) {
+        if (!fs) {
             console.warn('can not get the file system!');
             return false;
         }
@@ -36,7 +36,7 @@ var fsUtils = {
     },
 
     deleteFile (filePath, onComplete) {
-        fsUtils.fs.unlink({
+        fs.unlink({
             filePath: filePath,
             success: function () {
                 onComplete && onComplete(null);
@@ -88,7 +88,7 @@ var fsUtils = {
     },
 
     copyFile (srcPath, destPath, onComplete) {
-        fsUtils.fs.copyFile({
+        fs.copyFile({
             srcPath: srcPath,
             destPath: destPath,
             success: function () {
@@ -102,7 +102,7 @@ var fsUtils = {
     },
 
     writeFile (path, data, encoding, onComplete) {
-        fsUtils.fs.writeFile({
+        fs.writeFile({
             filePath: path,
             encoding: encoding,
             data: data,
@@ -118,7 +118,7 @@ var fsUtils = {
 
     writeFileSync (path, data, encoding) {
         try {
-            fsUtils.fs.writeFileSync(path, data, encoding);
+            fs.writeFileSync(path, data, encoding);
             return null;
         }
         catch (e) {
@@ -128,7 +128,7 @@ var fsUtils = {
     },
 
     readFile (filePath, encoding, onComplete) {
-        fsUtils.fs.readFile({
+        fs.readFile({
             filePath: filePath,
             encoding: encoding,
             success: function (res) {
@@ -142,7 +142,7 @@ var fsUtils = {
     },
 
     readDir (filePath, onComplete) {
-        fsUtils.fs.readdir({
+        fs.readdir({
             dirPath: filePath,
             success: function (res) {
                 onComplete && onComplete(null, res.files);
@@ -180,7 +180,7 @@ var fsUtils = {
 
     readJsonSync (path) {
         try {
-            var str = fsUtils.fs.readFileSync(path, 'utf8');
+            var str = fs.readFileSync(path, 'utf8');
             return JSON.parse(str);
         }
         catch (e) {
@@ -191,7 +191,7 @@ var fsUtils = {
 
     makeDirSync (path, recursive) {
         try {
-            fsUtils.fs.mkdirSync(path, recursive);
+            fs.mkdirSync(path, recursive);
             return null;
         }
         catch (e) {
@@ -202,7 +202,7 @@ var fsUtils = {
 
     rmdirSync (dirPath, recursive) {
         try {
-            fsUtils.fs.rmdirSync(dirPath, recursive);
+            fs.rmdirSync(dirPath, recursive);
         }
         catch (e) {
             cc.warn('rm directory failed: ' + e.message);
@@ -211,7 +211,7 @@ var fsUtils = {
     },
 
     exists (filePath, onComplete) {
-        fsUtils.fs.access({
+        fs.access({
             path: filePath,
             success: function () {
                 onComplete && onComplete(true);
