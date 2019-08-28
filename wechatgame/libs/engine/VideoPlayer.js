@@ -113,6 +113,8 @@
 
         if (!this._video) {
             this._video = wx.createVideo();
+            this._video.showCenterPlayBtn = false;
+            this._video.controls = false;
             this._duration = -1;
             this._currentTime = -1;
             this._loaded = false;
@@ -227,7 +229,7 @@
     };
 
     _p.setKeepAspectRatioEnabled = function (isEnabled) {
-        cc.log('On wechat game is always keep the aspect ratio');
+        console.warn('On wechat game videoPlayer is always keep the aspect ratio');
     };
 
     _p.isKeepAspectRatioEnabled = function () {
