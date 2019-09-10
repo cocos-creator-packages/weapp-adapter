@@ -63,6 +63,7 @@
         video.onEnded(function () {
             if (self._video !== video) return;
             self._playing = false;
+            self._currentTime = self._duration;  // ensure currentTime is at the end of duration
             self._dispatchEvent(_impl.EventType.COMPLETED);
         });
         video.onPause(function () {
