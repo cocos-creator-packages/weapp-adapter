@@ -241,6 +241,7 @@ cc.assetManager.loadBundle = function (root, options, onComplete) {
         options = null;
     }
     options = options || {};
+    options.priority = options.priority || 2;
     var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
     if (subpackages.has(root)) {
         loadSubpackage(root, options.onProgress, function (err) {
@@ -248,7 +249,7 @@ cc.assetManager.loadBundle = function (root, options, onComplete) {
                 onComplete && onComplete(err, null);
                 return;
             }
-            downloadJson(config, options, function (err, json) {
+            downloader.download(root, config, '.json', options, function (err, json) {
                 var bundle = null;
                 if (!err) {
                     bundle = new cc.AssetManager.Bundle();
@@ -260,13 +261,13 @@ cc.assetManager.loadBundle = function (root, options, onComplete) {
         });
     }
     else {
-        downloadJson(config, options, function (err, json) {
+        downloader.download(root, config, '.json', options, function (err, json) {
             if (!err) {
                 var bundle = new cc.AssetManager.Bundle();
                 json.base = root + '/';
                 bundle.init(json);
                 if (!json.scripts) return onComplete && onComplete(null, bundle);
-                cc.assetManager.loadScript(root + '/game.js', options, function (err) {
+                cc.assetManager.loadScript(root + '/index.js', options, function (err) {
                     onComplete && onComplete(null, bundle);
                 });
                 return;
