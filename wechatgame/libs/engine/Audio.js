@@ -3,12 +3,7 @@ const Audio = cc.Audio;
 if (Audio) {
     Object.assign(Audio.prototype, {
         _createElement () {
-            let elem = this._src._nativeAsset;
-            // Reuse dom audio element
-            if (!this._element) {
-                this._element = wx.createInnerAudioContext();
-            }
-            this._element.src = elem.src;
+            this._element = this._src._nativeAsset;
         },
 
         destroy () {

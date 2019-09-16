@@ -44,11 +44,22 @@ function downloadAudio (item, callback) {
     if (cc.sys.__audioSupport.format.length === 0) {
         return new Error(debug.getError(4927));
     }
-
-    var dom = document.createElement('audio');
-    dom.src = item.url;
-
-    callback(null, dom);
+    
+    var innerAudioContext = wx.createInnerAudioContext();
+    
+    function success () {
+        innerAudioContext.offCanplay(success);
+        innerAudioContext.offError(fail);
+        callback(null, innerAudioContext);
+    }
+    function fail (res) {
+        innerAudioContext.offCanplay(success);
+        innerAudioContext.offError(fail);
+        callback(new Error(res.errMsg), null);
+    }
+    innerAudioContext.onCanplay(success);
+    innerAudioContext.onError(fail);
+    innerAudioContext.src = item.url;
 }
 
 function downloadImage (item, callback, isCrossOrigin) {
