@@ -62,13 +62,6 @@ function downloadImage (item, callback, isCrossOrigin) {
     img.src = url;
 }
 
-function downloadWebp (item, callback) {
-    if (!cc.sys.capabilities.webp) {
-        return new Error(cc.debug.getError(4929, item.url));
-    }
-    return downloadImage(item, callback);
-}
-
 function downloadVideo (item, callback) {
     callback(null, item.url);
 }
@@ -86,7 +79,7 @@ cc.loader.downloader.addHandlers({
     gif : downloadImage,
     ico : downloadImage,
     tiff : downloadImage,
-    webp : downloadWebp,
+    webp : downloadImage,
     image : downloadImage,
     
     // Video
