@@ -43,7 +43,7 @@ cc.game._runMainLoop = function () {
     callback = function () {
         if (!self._paused) {
             self._intervalId = window.requestAnimFrame(callback);
-            if (frameRate === 30) {
+            if (frameRate === 30 && !wx.setPreferredFramesPerSecond) {
                 if (skip = !skip) {
                     return;
                 }
